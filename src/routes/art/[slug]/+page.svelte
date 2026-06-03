@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { MouseEventHandler } from 'svelte/elements';
 	import ArrowLeft from 'phosphor-svelte/lib/ArrowLeft';
 	import Bank from 'phosphor-svelte/lib/Bank';
 	import EnvelopeSimple from 'phosphor-svelte/lib/EnvelopeSimple';
@@ -7,7 +8,23 @@
 
 	let { data } = $props();
 	let artwork = $derived(data.artwork);
-	let emailLink = $derived(data.emailLink);
+	let browserEmailLink = $derived(data.browserEmailLink);
+	let mailtoLink = $derived(data.mailtoLink);
+
+	const handleEmailClick: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement> = (event) => {
+		if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+			return;
+		}
+
+		event.preventDefault();
+		window.location.href = mailtoLink;
+
+		window.setTimeout(() => {
+			if (document.visibilityState === 'visible') {
+				window.open(browserEmailLink, '_blank', 'noopener,noreferrer');
+			}
+		}, 900);
+	};
 </script>
 
 <svelte:head>
@@ -106,11 +123,13 @@
 				</li>
 			</ol>
 
-			<Button href={emailLink} target="_blank" variant="primary">
+			<Button href={mailtoLink} variant="primary" onclick={handleEmailClick}>
 				<EnvelopeSimple size={18} weight="bold" aria-hidden="true" />
 				Email Ellie
 			</Button>
-			<a class="email-fallback" href="mailto:ellieseal59@gmail.com">ellieseal59@gmail.com</a>
+			<a class="email-fallback" href={browserEmailLink} target="_blank" rel="noreferrer"
+				>Open in Gmail instead</a
+			>
 		</div>
 	</section>
 </main>

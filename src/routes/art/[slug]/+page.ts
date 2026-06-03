@@ -1,5 +1,10 @@
 import { error } from '@sveltejs/kit';
-import { artworks, buildArtworkEmailLink, getArtworkBySlug } from '$lib/art';
+import {
+	artworks,
+	buildArtworkBrowserEmailLink,
+	buildArtworkMailtoLink,
+	getArtworkBySlug
+} from '$lib/art';
 
 export const prerender = true;
 
@@ -16,6 +21,7 @@ export function load({ params }) {
 
 	return {
 		artwork,
-		emailLink: buildArtworkEmailLink(artwork)
+		browserEmailLink: buildArtworkBrowserEmailLink(artwork),
+		mailtoLink: buildArtworkMailtoLink(artwork)
 	};
 }

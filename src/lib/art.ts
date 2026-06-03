@@ -65,7 +65,7 @@ export const artworks: Artwork[] = [
 		image: art2,
 		alt: 'Abstract black linework artwork with a dancer figure and sweeping angular movement.',
 		medium: 'Original on Fabriano paper',
-		price: 60,
+		price: null,
 		dimensions: paperDimensions,
 		description: [
 			[
@@ -93,7 +93,7 @@ export const artworks: Artwork[] = [
 		alt: 'Abstract black linework composition with mirrored forms resembling a yin and yang butterfly.',
 		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
-		price: null,
+		price: 45,
 		dimensions: paperDimensions,
 		description: [
 			[
@@ -119,7 +119,7 @@ export const artworks: Artwork[] = [
 		alt: 'Abstract black linework artwork with looping forms and energetic dark shapes.',
 		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
-		price: 45,
+		price: 50,
 		dimensions: paperDimensions,
 		description: [
 			[
@@ -167,7 +167,7 @@ export const artworks: Artwork[] = [
 		alt: 'Abstract black linework artwork with long diagonal strokes and dance-like movement.',
 		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
-		price: 60,
+		price: 35,
 		dimensions: paperDimensions,
 		description: [
 			[
@@ -206,8 +206,19 @@ export function buildArtworkEmailText(artwork: Artwork) {
 	].join('\n');
 }
 
-export function buildArtworkEmailLink(artwork: Artwork) {
-	const subject = `Artwork purchase enquiry: ${artwork.title}`;
+export function buildArtworkEmailSubject(artwork: Artwork) {
+	return `Artwork purchase enquiry: ${artwork.title}`;
+}
+
+export function buildArtworkMailtoLink(artwork: Artwork) {
+	const subject = buildArtworkEmailSubject(artwork);
+	const body = buildArtworkEmailText(artwork);
+
+	return `mailto:ellieseal59@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+export function buildArtworkBrowserEmailLink(artwork: Artwork) {
+	const subject = buildArtworkEmailSubject(artwork);
 	const body = buildArtworkEmailText(artwork);
 
 	return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent('ellieseal59@gmail.com')}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
