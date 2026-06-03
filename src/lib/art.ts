@@ -41,7 +41,7 @@ export const artworks: Artwork[] = [
 		image: art1,
 		alt: 'Abstract black linework artwork with sharp horizontal shard forms and a reaching figure.',
 		medium: 'Original on Fabriano paper',
-		price: 35,
+		price: 60,
 		dimensions: paperDimensions,
 		description: [
 			[
