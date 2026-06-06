@@ -47,11 +47,9 @@ export const artworks: Artwork[] = [
 			[
 				{ text: 'It Feels Like a Cosmic Shard', italic: true },
 				{
-					text: " is Seal's first attempt at depicting expressive movement."
-				}
-			],
-			[
-				{ text: 'Cosmic shard', italic: true },
+					text: ' is Seals first attempt at depicting expressive movement. The name '
+				},
+				{ text: 'Cosmic Shard', italic: true },
 				{
 					text: ' describes the feeling of cutting through space with her body and how dancing resembles an unearthly, unexplainable experience.'
 				}
@@ -71,114 +69,85 @@ export const artworks: Artwork[] = [
 			[
 				{ text: 'It Feels Like Love Is the Key', italic: true },
 				{
-					text: ' is a homage piece to the late Jonathan Gaughan, the grandfather of Ellie Seal. Jonathan Gaughan spent his life spreading love and faith through his music career.'
-				}
-			],
-			[
-				{
-					text: 'This piece depicts the movement and emotion of Ellie Seal as she dances to his most popular song '
+					text: ' is a homage piece to the late Jonathan Gaughan, the grandfather of Ellie Seal. Johnathan Gaughan spent his life spreading love and faith through his music career. This pieces depicts the movement and emotion of Ellie Seal as she dances to his most popular song "'
 				},
 				{ text: 'Love Is the Key', italic: true },
 				{
-					text: ', a song describing how his faith guided him through his troubles and how loving one another is the key to redemption.'
+					text: '" a song describing how his faith guided him through his troubles and how loving one another is the key to redemption.'
 				}
 			]
 		]
 	},
 	{
 		id: 3,
-		title: 'Untitled Balance Study',
-		slug: 'untitled-balance-study',
+		title: 'It Feels Like Good and Evil',
+		slug: 'it-feels-like-good-and-evil',
 		image: art3,
 		alt: 'Abstract black linework composition with mirrored forms resembling a yin and yang butterfly.',
-		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
 		price: 45,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: 'Untitled Balance Study', italic: true },
+				{ text: 'It Feels Like Good and Evil', italic: true },
 				{
-					text: " is a piece depicting Seal's reliance on balance with body and mind."
-				}
-			],
-			[
-				{
-					text: 'Seal believes dancing tangentially mirrors life in that we must create a balance between the body and mind to remain content. This is portrayed with a '
+					text: ' is a pieces depicting Seals reliance on balance with body and mind. Seal believes dancing tangentially mirrors life in that we must create a balance between the body and mind to remain content. This is portrayed with a '
 				},
-				{ text: 'yin and yang', italic: true },
+				{ text: 'ying and yang', italic: true },
 				{ text: ' inspired composition.' }
 			]
 		]
 	},
 	{
 		id: 4,
-		title: 'Untitled Movement Study II',
-		slug: 'untitled-movement-study-ii',
+		title: 'It Feels Like a Whirl Pool',
+		slug: 'it-feels-like-a-whirl-pool',
 		image: art4,
 		alt: 'Abstract black linework artwork with looping forms and energetic dark shapes.',
-		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
 		price: 50,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: 'Untitled Movement Study II', italic: true },
+				{ text: 'It Feels Like a Whirl Pool', italic: true },
 				{
-					text: ' explores how a dancing body can be translated into sweeping lines, suspended weight, and controlled release.'
-				}
-			],
-			[
-				{
-					text: 'The composition keeps the marks open and minimal, allowing the viewer to follow rhythm, breath, and gesture through negative space.'
+					text: ' depicts a continuous cycle of swirling curves representing repetition and fluidity. This piece focuses on the physical feeling of moving through empty space, with Seals gestures flowing and filling up the area around her.'
 				}
 			]
 		]
 	},
 	{
 		id: 5,
-		title: 'Untitled Movement Study III',
-		slug: 'untitled-movement-study-iii',
+		title: "It Feels Like It's Consuming Me",
+		slug: 'it-feels-like-its-consuming-me',
 		image: art5,
 		alt: 'Abstract black linework artwork with circular movement and bold central forms.',
-		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
 		price: 60,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: 'Untitled Movement Study III', italic: true },
+				{ text: "It Feels Like It's Consuming Me", italic: true },
 				{
-					text: ' studies rotation, balance, and the pressure of a gesture as it travels across a surface.'
-				}
-			],
-			[
-				{
-					text: 'Bold black forms anchor the work while finer lines suggest the traces left behind by motion.'
+					text: ' depicts Seals own movement wrapping and contorting around her physical form to portray her desperation for dance. This piece seperates Seals movement with her body whilst still implying their relation to one another.'
 				}
 			]
 		]
 	},
 	{
 		id: 6,
-		title: 'Untitled Movement Study IV',
-		slug: 'untitled-movement-study-iv',
+		title: 'It Feels Like a Ball of Light',
+		slug: 'it-feels-like-a-ball-of-light',
 		image: art6,
 		alt: 'Abstract black linework artwork with long diagonal strokes and dance-like movement.',
-		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
 		price: 35,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: 'Untitled Movement Study IV', italic: true },
+				{ text: 'It Feels Like a Ball of Light', italic: true },
 				{
-					text: ' focuses on expansion, reach, and the charged moments between one physical shape and the next.'
-				}
-			],
-			[
-				{
-					text: 'Its long diagonals create a sense of momentum, while softer curves hold the composition in tension.'
+					text: ' describes a materialization of power felt by Seals dance. The physical ball acts as a compression holding the passion and energy exertion of her movement.'
 				}
 			]
 		]
