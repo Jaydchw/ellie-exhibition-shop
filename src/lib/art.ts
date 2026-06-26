@@ -41,15 +41,17 @@ export const artworks: Artwork[] = [
 		image: art1,
 		alt: 'Abstract black linework artwork with sharp horizontal shard forms and a reaching figure.',
 		medium: 'Original on Fabriano paper',
-		price: 60,
+		price: 220,
 		dimensions: paperDimensions,
 		description: [
 			[
 				{ text: 'It Feels Like a Cosmic Shard', italic: true },
 				{
-					text: ' is Seals first attempt at depicting expressive movement. The name '
-				},
-				{ text: 'Cosmic Shard', italic: true },
+					text: " is Seal's first attempt at depicting expressive movement."
+				}
+			],
+			[
+				{ text: 'Cosmic shard', italic: true },
 				{
 					text: ' describes the feeling of cutting through space with her body and how dancing resembles an unearthly, unexplainable experience.'
 				}
@@ -69,85 +71,111 @@ export const artworks: Artwork[] = [
 			[
 				{ text: 'It Feels Like Love Is the Key', italic: true },
 				{
-					text: ' is a homage piece to the late Jonathan Gaughan, the grandfather of Ellie Seal. Johnathan Gaughan spent his life spreading love and faith through his music career. This pieces depicts the movement and emotion of Ellie Seal as she dances to his most popular song "'
+					text: ' is a homage piece to the late Jonathan Gaughan, the grandfather of Ellie Seal. Jonathan Gaughan spent his life spreading love and faith through his music career.'
+				}
+			],
+			[
+				{
+					text: 'This piece depicts the movement and emotion of Ellie Seal as she dances to his most popular song '
 				},
 				{ text: 'Love Is the Key', italic: true },
 				{
-					text: '" a song describing how his faith guided him through his troubles and how loving one another is the key to redemption.'
+					text: ', a song describing how his faith guided him through his troubles and how loving one another is the key to redemption.'
 				}
 			]
 		]
 	},
 	{
 		id: 3,
-		title: 'It Feels Like Good and Evil',
+		title: 'It feels Like Good and Evil',
 		slug: 'it-feels-like-good-and-evil',
 		image: art3,
 		alt: 'Abstract black linework composition with mirrored forms resembling a yin and yang butterfly.',
 		medium: 'Original on Fabriano paper',
-		price: 45,
+		price: 95,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: 'It Feels Like Good and Evil', italic: true },
+				{ text: 'It feels Like Good and Evil', italic: true },
 				{
-					text: ' is a pieces depicting Seals reliance on balance with body and mind. Seal believes dancing tangentially mirrors life in that we must create a balance between the body and mind to remain content. This is portrayed with a '
+					text: " is a piece depicting Seal's reliance on balance with body and mind."
+				}
+			],
+			[
+				{
+					text: 'Seal believes dancing tangentially mirrors life in that we must create a balance between the body and mind to remain content. This is portrayed with a '
 				},
-				{ text: 'ying and yang', italic: true },
+				{ text: 'yin and yang', italic: true },
 				{ text: ' inspired composition.' }
 			]
 		]
 	},
 	{
 		id: 4,
-		title: 'It Feels Like a Whirl Pool',
-		slug: 'it-feels-like-a-whirl-pool',
+		title: 'Feels Like a Whirl Pool',
+		slug: 'feels-like-a-whirl-pool',
 		image: art4,
 		alt: 'Abstract black linework artwork with looping forms and energetic dark shapes.',
 		medium: 'Original on Fabriano paper',
-		price: 50,
+		price: 130,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: 'It Feels Like a Whirl Pool', italic: true },
+				{ text: 'Feels Like a Whirl Pool', italic: true },
 				{
-					text: ' depicts a continuous cycle of swirling curves representing repetition and fluidity. This piece focuses on the physical feeling of moving through empty space, with Seals gestures flowing and filling up the area around her.'
+					text: ' explores how a dancing body can be translated into sweeping lines, suspended weight, and controlled release.'
+				}
+			],
+			[
+				{
+					text: 'The composition keeps the marks open and minimal, allowing the viewer to follow rhythm, breath, and gesture through negative space.'
 				}
 			]
 		]
 	},
 	{
 		id: 5,
-		title: "It Feels Like It's Consuming Me",
-		slug: 'it-feels-like-its-consuming-me',
+		title: 'It Feels Like it is Consuming Me',
+		slug: 'it-feels-like-it-is-consuming-me',
 		image: art5,
 		alt: 'Abstract black linework artwork with circular movement and bold central forms.',
 		medium: 'Original on Fabriano paper',
-		price: 60,
+		price: 180,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: "It Feels Like It's Consuming Me", italic: true },
+				{ text: 'It Feels Like it is Consuming Me', italic: true },
 				{
-					text: ' depicts Seals own movement wrapping and contorting around her physical form to portray her desperation for dance. This piece seperates Seals movement with her body whilst still implying their relation to one another.'
+					text: ' studies rotation, balance, and the pressure of a gesture as it travels across a surface.'
+				}
+			],
+			[
+				{
+					text: 'Bold black forms anchor the work while finer lines suggest the traces left behind by motion.'
 				}
 			]
 		]
 	},
 	{
 		id: 6,
-		title: 'It Feels Like a Ball of Light',
+		title: 'It Feels like a Ball of Light',
 		slug: 'it-feels-like-a-ball-of-light',
 		image: art6,
 		alt: 'Abstract black linework artwork with long diagonal strokes and dance-like movement.',
+		status: 'placeholder-title',
 		medium: 'Original on Fabriano paper',
-		price: 35,
+		price: 90,
 		dimensions: paperDimensions,
 		description: [
 			[
-				{ text: 'It Feels Like a Ball of Light', italic: true },
+				{ text: 'It Feels like a Ball of Light', italic: true },
 				{
-					text: ' describes a materialization of power felt by Seals dance. The physical ball acts as a compression holding the passion and energy exertion of her movement.'
+					text: ' focuses on expansion, reach, and the charged moments between one physical shape and the next.'
+				}
+			],
+			[
+				{
+					text: 'Its long diagonals create a sense of momentum, while softer curves hold the composition in tension.'
 				}
 			]
 		]
