@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SvelteMap } from 'svelte/reactivity';
 	import ArrowsOut from 'phosphor-svelte/lib/ArrowsOut';
 	import CaretLeft from 'phosphor-svelte/lib/CaretLeft';
 	import CaretRight from 'phosphor-svelte/lib/CaretRight';
@@ -29,6 +30,13 @@
 	let dragStartY = 0;
 	let panStartX = 0;
 	let panStartY = 0;
+	const activePointers = new SvelteMap<number, { x: number; y: number }>();
+	let pinchStartDistance = 0;
+	let pinchStartZoom = 1;
+	let pinchStartMidX = 0;
+	let pinchStartMidY = 0;
+	let pinchStartPanX = 0;
+	let pinchStartPanY = 0;
 	let scroller = $state<HTMLDivElement>();
 	let dialog = $state<HTMLDialogElement>();
 
@@ -37,6 +45,7 @@
 		panX = 0;
 		panY = 0;
 		dragging = false;
+		activePointers.clear();
 	}
 
 	function openItem(index: number) {
@@ -92,24 +101,82 @@
 		changeZoom(event.deltaY < 0 ? 0.25 : -0.25);
 	}
 
+	function getPinchMetrics() {
+		const [first, second] = [...activePointers.values()];
+		if (!first || !second) return null;
+
+		return {
+			distance: Math.hypot(second.x - first.x, second.y - first.y),
+			midX: (first.x + second.x) / 2,
+			midY: (first.y + second.y) / 2
+		};
+	}
+
 	function startPan(event: PointerEvent) {
-		if (zoom === 1) return;
-		dragging = true;
-		dragStartX = event.clientX;
-		dragStartY = event.clientY;
-		panStartX = panX;
-		panStartY = panY;
 		(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+		activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+		if (activePointers.size === 2) {
+			const metrics = getPinchMetrics();
+			if (!metrics) return;
+			pinchStartDistance = metrics.distance;
+			pinchStartMidX = metrics.midX;
+			pinchStartMidY = metrics.midY;
+			pinchStartZoom = zoom;
+			pinchStartPanX = panX;
+			pinchStartPanY = panY;
+			dragging = false;
+			return;
+		}
+
+		if (zoom > 1) {
+			dragging = true;
+			dragStartX = event.clientX;
+			dragStartY = event.clientY;
+			panStartX = panX;
+			panStartY = panY;
+		}
 	}
 
 	function movePan(event: PointerEvent) {
+		if (!activePointers.has(event.pointerId)) return;
+		activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+		if (activePointers.size === 2) {
+			const metrics = getPinchMetrics();
+			if (!metrics || pinchStartDistance === 0) return;
+
+			zoom = Math.min(4, Math.max(1, pinchStartZoom * (metrics.distance / pinchStartDistance)));
+			if (zoom === 1) {
+				panX = 0;
+				panY = 0;
+			} else {
+				panX = pinchStartPanX + metrics.midX - pinchStartMidX;
+				panY = pinchStartPanY + metrics.midY - pinchStartMidY;
+			}
+			return;
+		}
+
 		if (!dragging) return;
 		panX = panStartX + event.clientX - dragStartX;
 		panY = panStartY + event.clientY - dragStartY;
 	}
 
-	function stopPan() {
+	function stopPan(event: PointerEvent) {
+		activePointers.delete(event.pointerId);
+
+		if (activePointers.size === 1 && zoom > 1) {
+			const remaining = [...activePointers.values()][0];
+			dragging = true;
+			dragStartX = remaining.x;
+			dragStartY = remaining.y;
+			panStartX = panX;
+			panStartY = panY;
+			return;
+		}
+
 		dragging = false;
+		pinchStartDistance = 0;
 	}
 
 	function handleKeydown(event: KeyboardEvent) {

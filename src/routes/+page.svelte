@@ -32,16 +32,16 @@
 		<p class="section-label" id="portfolio-title">{siteCopy.home.choicesLabel}</p>
 		<div class="choice-grid">
 			<PortfolioCard
-				{...siteCopy.home.choices.art}
-				image={artPreview}
-				alt="Abstract black line artwork by Ellie Seal"
-				tone="sage"
-			/>
-			<PortfolioCard
 				{...siteCopy.home.choices.murals}
 				image={muralPreview}
 				alt="Botanical mural painted by Ellie Seal"
 				tone="blush"
+			/>
+			<PortfolioCard
+				{...siteCopy.home.choices.art}
+				image={artPreview}
+				alt="Abstract black line artwork by Ellie Seal"
+				tone="sage"
 			/>
 		</div>
 	</section>
