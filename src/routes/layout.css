@@ -9,17 +9,28 @@
 	--paper: #f7f3ec;
 	--stone: #e9e3d8;
 	--sage: #b8c1a6;
+	--sage-light: #dfe5d3;
 	--moss: #6f7a5d;
 	--ochre: #b58b4c;
+	--terracotta: #b66d5d;
+	--blush: #ead2ca;
 	--navy: #102f55;
 	--navy-soft: #173f6d;
 	--ink: #1d211b;
 	--body: #3d4339;
 	--muted: #6d7568;
+	--line: color-mix(in srgb, var(--navy) 15%, var(--stone));
+	--content-width: 1180px;
+	--site-header-height: 3.6rem;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
 }
 
 html {
-	scroll-behavior: smooth;
 	background: var(--paper);
 }
 
@@ -31,9 +42,49 @@ body {
 	text-rendering: geometricprecision;
 }
 
+body,
+button,
+a {
+	-webkit-font-smoothing: antialiased;
+}
+
+img {
+	max-width: 100%;
+}
+
+.site-shell {
+	position: relative;
+	min-height: 100vh;
+	overflow: clip;
+}
+
+.skip-link {
+	position: fixed;
+	z-index: 100;
+	top: 0.75rem;
+	left: 0.75rem;
+	transform: translateY(-180%);
+	border-radius: 999px;
+	background: var(--navy);
+	color: white;
+	font-family: var(--font-sans);
+	font-weight: 700;
+	padding: 0.75rem 1rem;
+}
+
+.skip-link:focus {
+	transform: translateY(0);
+}
+
 button,
 a {
 	-webkit-tap-highlight-color: transparent;
+}
+
+a:focus-visible,
+button:focus-visible {
+	outline: 3px solid color-mix(in srgb, var(--navy) 34%, transparent);
+	outline-offset: 3px;
 }
 
 ::selection {
@@ -52,13 +103,8 @@ a {
 	}
 }
 
-@keyframes soft-drift {
-	0%,
-	100% {
-		transform: translate3d(0, 0, 0) rotate(0deg);
-	}
-
-	50% {
-		transform: translate3d(0, -10px, 0) rotate(1.2deg);
+@media (min-width: 600px) {
+	:root {
+		--site-header-height: 4.25rem;
 	}
 }

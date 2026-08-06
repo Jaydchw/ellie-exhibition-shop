@@ -1,4 +1,4 @@
-import profile from '$lib/assets/images/profile.png';
+import profile from '$lib/assets/images/murals/ellie-seal-mural-artist.png';
 
 export const artistBio = {
 	name: 'Ellie Seal',

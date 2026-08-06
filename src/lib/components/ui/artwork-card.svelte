@@ -27,7 +27,7 @@
 	.art-card {
 		position: relative;
 		display: grid;
-		overflow: hidden;
+		overflow: visible;
 		color: inherit;
 		text-decoration: none;
 		transition:
@@ -63,13 +63,20 @@
 		aspect-ratio: 1.44;
 		margin: 0;
 		overflow: hidden;
+		background: var(--stone);
 	}
 
 	img {
 		height: 100%;
 		width: 100%;
 		object-fit: cover;
-		transition: opacity 180ms ease;
+		transition:
+			opacity 180ms ease,
+			transform 320ms ease;
+	}
+
+	.art-card:hover img {
+		transform: scale(1.015);
 	}
 
 	.art-card__body {

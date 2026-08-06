@@ -52,7 +52,7 @@
 		justify-content: center;
 		gap: 0.55rem;
 		border: 1px solid transparent;
-		border-radius: 6px;
+		border-radius: 0.2rem;
 		font-family: var(--font-sans);
 		font-size: 0.9rem;
 		font-weight: 700;
@@ -93,8 +93,10 @@
 	}
 
 	.ui-button--outline {
-		border-color: color-mix(in srgb, var(--navy) 32%, var(--stone));
+		border-color: transparent;
+		border-bottom-color: currentColor;
 		background: transparent;
+		padding-inline: 0.2rem;
 		color: var(--navy);
 	}
 

@@ -4,6 +4,7 @@
 	import Bank from 'phosphor-svelte/lib/Bank';
 	import EnvelopeSimple from 'phosphor-svelte/lib/EnvelopeSimple';
 	import Ruler from 'phosphor-svelte/lib/Ruler';
+	import { artPurchaseCopy } from '$lib/art';
 	import Button from '$lib/components/ui/button.svelte';
 
 	let { data } = $props();
@@ -28,18 +29,18 @@
 </script>
 
 <svelte:head>
-	<title>Ellie Seal</title>
+	<title>{artwork.title} — Ellie Seal</title>
 	<meta
 		name="description"
 		content={`View ${artwork.title}, an abstract movement artwork by Ellie Seal, and enquire about buying the original Fabriano paper piece.`}
 	/>
 </svelte:head>
 
-<main class="detail-page">
+<main id="main-content" class="detail-page">
 	<nav class="detail-nav" aria-label="Artwork navigation">
-		<Button href="/" variant="ghost">
+		<Button href="/art" variant="ghost">
 			<ArrowLeft size={18} weight="bold" aria-hidden="true" />
-			Back to gallery
+			{artPurchaseCopy.backLabel}
 		</Button>
 	</nav>
 
@@ -49,7 +50,7 @@
 		</div>
 
 		<aside class="artwork-panel" aria-labelledby="artwork-title">
-			<p class="eyebrow">Ellie Seal exhibition original</p>
+			<p class="eyebrow">{artPurchaseCopy.detailEyebrow}</p>
 			<h1 id="artwork-title">{artwork.title}</h1>
 
 			<div class="description">
@@ -66,69 +67,62 @@
 				{/each}
 				<p class="dimensions">
 					<Ruler size={20} weight="bold" aria-hidden="true" />
-					Fabriano paper size: {artwork.dimensions.height} height x {artwork.dimensions.width}
+					{artPurchaseCopy.dimensionsLabel}: {artwork.dimensions.height} height x {artwork
+						.dimensions.width}
 					width
 				</p>
-				<p class="price">{artwork.price === null ? 'Price TBC' : `£${artwork.price}`}</p>
+				<p class="price">
+					{artwork.price === null ? artPurchaseCopy.priceTbc : `£${artwork.price}`}
+				</p>
 			</div>
 		</aside>
 	</section>
 
 	<section class="purchase-section" aria-labelledby="purchase-title">
 		<div class="purchase-copy">
-			<p class="eyebrow">Buying the original</p>
-			<h2 id="purchase-title">Reserve by email</h2>
-			<p>
-				Each piece is the original artwork on Fabriano paper, so there is only one available. To buy
-				it, send a bank transfer for the listed price, then email Ellie with the artwork name, proof
-				of payment, and the delivery address.
-			</p>
+			<p class="eyebrow">{artPurchaseCopy.purchaseEyebrow}</p>
+			<h2 id="purchase-title">{artPurchaseCopy.purchaseTitle}</h2>
+			<p>{artPurchaseCopy.purchaseIntro}</p>
 		</div>
 
 		<div class="purchase-card">
 			<div class="bank-details" aria-label="Ellie Seal bank details">
 				<p class="bank-label">
 					<Bank size={20} weight="bold" aria-hidden="true" />
-					Bank transfer details
+					{artPurchaseCopy.bankLabel}
 				</p>
 				<dl>
-					<div>
-						<dt>Name</dt>
-						<dd>E L SEAL</dd>
-					</div>
-					<div>
-						<dt>Sort code</dt>
-						<dd>20-89-68</dd>
-					</div>
-					<div>
-						<dt>Account number</dt>
-						<dd>43337731</dd>
-					</div>
+					{#each artPurchaseCopy.bankDetails as detail (detail.label)}
+						<div>
+							<dt>{detail.label}</dt>
+							<dd>{detail.value}</dd>
+						</div>
+					{/each}
 				</dl>
 			</div>
 
 			<ol>
 				<li>
 					<span><EnvelopeSimple size={20} weight="bold" aria-hidden="true" /></span>
-					Email Ellie with the artwork title.
+					{artPurchaseCopy.steps.email}
 				</li>
 				<li>
 					<span><Bank size={20} weight="bold" aria-hidden="true" /></span>
-					Transfer {artwork.price === null ? 'the agreed price' : `£${artwork.price}`} using the bank
-					details above.
+					Transfer {artwork.price === null ? 'the agreed price' : `£${artwork.price}`}
+					{artPurchaseCopy.steps.paymentSuffix}
 				</li>
 				<li>
 					<span><Ruler size={20} weight="bold" aria-hidden="true" /></span>
-					Attach a screenshot showing proof of payment and include the delivery address.
+					{artPurchaseCopy.steps.proof}
 				</li>
 			</ol>
 
 			<Button href={mailtoLink} variant="primary" onclick={handleEmailClick}>
 				<EnvelopeSimple size={18} weight="bold" aria-hidden="true" />
-				Email Ellie
+				{artPurchaseCopy.emailLabel}
 			</Button>
 			<a class="email-fallback" href={browserEmailLink} target="_blank" rel="noreferrer"
-				>Open in Gmail instead</a
+				>{artPurchaseCopy.gmailLabel}</a
 			>
 		</div>
 	</section>
@@ -136,9 +130,9 @@
 
 <style>
 	.detail-page {
+		position: relative;
+		z-index: 1;
 		min-height: 100vh;
-		overflow: hidden;
-		background: var(--paper);
 		color: var(--ink);
 	}
 
@@ -177,8 +171,7 @@
 		top: 1rem;
 		display: grid;
 		gap: 1.2rem;
-		border-left: 1px solid color-mix(in srgb, var(--sage) 70%, white);
-		padding: 0 0 0 clamp(1.2rem, 3vw, 2rem);
+		padding: 0;
 		animation: rise-in 680ms 120ms ease both;
 	}
 
@@ -255,7 +248,6 @@
 		grid-template-columns: minmax(0, 0.85fr) minmax(320px, 1fr);
 		gap: clamp(2rem, 5vw, 4rem);
 		align-items: start;
-		border-top: 1px solid color-mix(in srgb, var(--sage) 60%, white);
 		padding: clamp(2rem, 6vw, 4.6rem) 0;
 	}
 
@@ -267,6 +259,8 @@
 	.purchase-card {
 		display: grid;
 		gap: 1.4rem;
+		background: color-mix(in srgb, var(--sage-light) 38%, var(--paper));
+		padding: clamp(1.3rem, 4vw, 2rem);
 	}
 
 	.bank-details {
@@ -360,7 +354,6 @@
 		.artwork-panel {
 			position: static;
 			border-left: 0;
-			border-top: 1px solid color-mix(in srgb, var(--sage) 70%, white);
 			padding: 1.2rem 0 0;
 		}
 

@@ -33,6 +33,30 @@ export const paperDimensions = {
 	depth: '0.01 cm'
 };
 
+export const artPurchaseCopy = {
+	detailEyebrow: 'Ellie Seal original',
+	dimensionsLabel: 'Fabriano paper size',
+	priceTbc: 'Price TBC',
+	backLabel: 'Back to fine art',
+	purchaseEyebrow: 'Buying the original',
+	purchaseTitle: 'Reserve by Email',
+	purchaseIntro:
+		'Each piece is the original artwork on Fabriano paper, so there is only one available. To buy it, send a bank transfer for the listed price, then email Ellie with the artwork name, proof of payment and the delivery address.',
+	bankLabel: 'Bank transfer details',
+	bankDetails: [
+		{ label: 'Name', value: 'E L SEAL' },
+		{ label: 'Sort code', value: '20-89-68' },
+		{ label: 'Account number', value: '43337731' }
+	],
+	steps: {
+		email: 'Email Ellie with the artwork title.',
+		paymentSuffix: 'using the bank details above.',
+		proof: 'Attach a screenshot showing proof of payment and include the delivery address.'
+	},
+	emailLabel: 'Email Ellie',
+	gmailLabel: 'Open in Gmail instead'
+};
+
 export const artworks: Artwork[] = [
 	{
 		id: 1,
@@ -87,7 +111,7 @@ export const artworks: Artwork[] = [
 	},
 	{
 		id: 3,
-		title: 'It feels Like Good and Evil',
+		title: 'It Feels Like Good and Evil',
 		slug: 'it-feels-like-good-and-evil',
 		image: art3,
 		alt: 'Abstract black linework composition with mirrored forms resembling a yin and yang butterfly.',
@@ -112,7 +136,7 @@ export const artworks: Artwork[] = [
 	},
 	{
 		id: 4,
-		title: 'Feels Like a Whirl Pool',
+		title: 'Feels Like a Whirlpool',
 		slug: 'feels-like-a-whirl-pool',
 		image: art4,
 		alt: 'Abstract black linework artwork with looping forms and energetic dark shapes.',
@@ -135,7 +159,7 @@ export const artworks: Artwork[] = [
 	},
 	{
 		id: 5,
-		title: 'It Feels Like it is Consuming Me',
+		title: 'It Feels Like It Is Consuming Me',
 		slug: 'it-feels-like-it-is-consuming-me',
 		image: art5,
 		alt: 'Abstract black linework artwork with circular movement and bold central forms.',
@@ -158,7 +182,7 @@ export const artworks: Artwork[] = [
 	},
 	{
 		id: 6,
-		title: 'It Feels like a Ball of Light',
+		title: 'It Feels Like a Ball of Light',
 		slug: 'it-feels-like-a-ball-of-light',
 		image: art6,
 		alt: 'Abstract black linework artwork with long diagonal strokes and dance-like movement.',
