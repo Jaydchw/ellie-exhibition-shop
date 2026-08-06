@@ -62,7 +62,7 @@ export const muralPageCopy = {
 		dosTitle: 'Ellie Can Paint',
 		dos: ['Plants and flowers', 'Lettering', 'Animals and bugs', 'Abstract designs'],
 		dontsTitle: 'Ellie Does Not Offer',
-		donts: ['Human faces', 'Extreme photorealism', 'Heavily textured walls'],
+		donts: ['Human faces', 'Extreme photorealism'],
 		wallNote:
 			'The wall should be smooth and already painted. A base coat can be added for an extra cost if the paint is purchased in advance.'
 	},
@@ -79,7 +79,8 @@ export const muralPageCopy = {
 	contact: {
 		eyebrow: 'Contact',
 		title: 'Request a Mural',
-		intro: 'Facebook Messenger is preferred. Instagram and email are also available.'
+		intro:
+			'Contact Ellie for a free quote. Facebook Messenger is preferred, but Instagram and email are also available.'
 	}
 } as const;
 
@@ -201,7 +202,7 @@ export const muralEnquiry: ChatMessage[] = [
 	{ sender: 'client', text: 'That looks great! How much will this be?' },
 	{
 		sender: 'ellie',
-		text: 'This mural will cost anywhere from £390 to £420, with a deposit of £135 :)'
+		text: 'This mural will cost ££££, with a deposit of £££ :)'
 	},
 	{ sender: 'client', text: 'Okay, I will send the deposit now!' },
 	{ sender: 'ellie', text: 'Thank you. What dates would you like to organise?' },
