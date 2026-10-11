@@ -2,36 +2,6 @@
 	import type { ChatMessage } from '$lib/content/murals';
 
 	let { messages }: { messages: ChatMessage[] } = $props();
-
-	function reveal(node: HTMLElement) {
-		const show = () => node.classList.add('message--visible');
-
-		if (typeof IntersectionObserver === 'undefined') {
-			show();
-			return;
-		}
-
-		const fallback = window.setTimeout(show, 1200);
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					show();
-					window.clearTimeout(fallback);
-					observer.unobserve(node);
-				}
-			},
-			{ threshold: 0.28 }
-		);
-
-		observer.observe(node);
-		return {
-			destroy: () => {
-				window.clearTimeout(fallback);
-				observer.disconnect();
-			}
-		};
-	}
 </script>
 
 <div class="chat" aria-label="Example mural enquiry conversation">
@@ -42,7 +12,6 @@
 			class:message--ellie={message.sender === 'ellie'}
 			class:message--continued={isContinued}
 			class="message"
-			use:reveal
 		>
 			{#if !isContinued}
 				<span class="sender">{message.sender === 'ellie' ? 'Ellie' : 'Client'}</span>
@@ -84,11 +53,6 @@
 		display: grid;
 		justify-items: start;
 		width: min(84%, 36rem);
-		opacity: 0;
-		transform: translate3d(-1.5rem, 2rem, 0);
-		transition:
-			opacity 520ms ease,
-			transform 620ms cubic-bezier(0.2, 0.72, 0.2, 1);
 	}
 
 	.message:not(.message--continued) {
@@ -102,12 +66,6 @@
 	.message--ellie {
 		justify-self: end;
 		justify-items: end;
-		transform: translate3d(1.5rem, 2rem, 0);
-	}
-
-	.message:global(.message--visible) {
-		opacity: 1;
-		transform: translate3d(0, 0, 0);
 	}
 
 	.sender {
@@ -185,14 +143,6 @@
 		}
 		.message--ellie .bubble {
 			border-radius: 1rem 1rem 0.2rem 1rem;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.message {
-			opacity: 1;
-			transform: none;
-			transition: none;
 		}
 	}
 </style>

@@ -1,0 +1,89 @@
+{
+	"sizes": ["S", "M", "L", "XL", "2XL"],
+	"products": [
+		{
+			"handle": "cosmic-shard-t-shirt",
+			"title": "Cosmic Shard T-shirt",
+			"type": "T-shirt",
+			"artwork": 1,
+			"price": 42,
+			"description": "Unisex T-shirt with Ellie Seal’s Cosmic Shard artwork printed on the front. Crew neck, short sleeves and a regular fit.",
+			"colours": ["Desert Dust", "Black", "White"],
+			"blank": "Stanley/Stella Creator 2.0 STTU169",
+			"sizeGuide": {
+				"headers": ["Size", "Half chest", "Body length"],
+				"rows": [
+					["S", "49 cm", "69 cm"],
+					["M", "52 cm", "72 cm"],
+					["L", "55 cm", "74 cm"],
+					["XL", "58 cm", "76 cm"],
+					["2XL", "61 cm", "78 cm"]
+				],
+				"note": "Measure a T-shirt flat across the chest, from armpit to armpit."
+			}
+		},
+		{
+			"handle": "seal-stuff-t-shirt",
+			"title": "Seal Stuff T-shirt",
+			"type": "T-shirt",
+			"artwork": null,
+			"price": 42,
+			"description": "Unisex T-shirt with the Seal Stuff wordmark on the front. Crew neck, short sleeves and a regular fit.",
+			"colours": ["Desert Dust", "Black", "White"],
+			"blank": "Stanley/Stella Creator 2.0 STTU169",
+			"sizeGuide": {
+				"headers": ["Size", "Half chest", "Body length"],
+				"rows": [
+					["S", "49 cm", "69 cm"],
+					["M", "52 cm", "72 cm"],
+					["L", "55 cm", "74 cm"],
+					["XL", "58 cm", "76 cm"],
+					["2XL", "61 cm", "78 cm"]
+				],
+				"note": "Measure a T-shirt flat across the chest, from armpit to armpit."
+			}
+		},
+		{
+			"handle": "whirlpool-hoodie",
+			"title": "Whirlpool Hoodie",
+			"type": "Hoodie",
+			"artwork": 4,
+			"price": 85,
+			"description": "Unisex pullover hoodie with Ellie Seal’s Whirlpool artwork printed on the front. Drawstring hood and a front pouch pocket.",
+			"colours": ["Ash", "Black", "White"],
+			"blank": "AWDis JH001",
+			"sizeGuide": {
+				"headers": ["Size", "Chest to fit", "Garment length"],
+				"rows": [
+					["S", "102 cm", "67 cm"],
+					["M", "112 cm", "70 cm"],
+					["L", "122 cm", "73 cm"],
+					["XL", "130 cm", "76 cm"],
+					["2XL", "138 cm", "79 cm"]
+				],
+				"note": "Chest to fit is the supplier’s circumference measurement."
+			}
+		},
+		{
+			"handle": "seal-stuff-hoodie",
+			"title": "Seal Stuff Hoodie",
+			"type": "Hoodie",
+			"artwork": null,
+			"price": 85,
+			"description": "Unisex pullover hoodie with the Seal Stuff wordmark on the front. Drawstring hood and a front pouch pocket.",
+			"colours": ["Ash", "Black", "White"],
+			"blank": "AWDis JH001",
+			"sizeGuide": {
+				"headers": ["Size", "Chest to fit", "Garment length"],
+				"rows": [
+					["S", "102 cm", "67 cm"],
+					["M", "112 cm", "70 cm"],
+					["L", "122 cm", "73 cm"],
+					["XL", "130 cm", "76 cm"],
+					["2XL", "138 cm", "79 cm"]
+				],
+				"note": "Chest to fit is the supplier’s circumference measurement."
+			}
+		}
+	]
+}

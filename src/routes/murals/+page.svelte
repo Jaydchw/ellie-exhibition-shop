@@ -201,7 +201,10 @@
 		z-index: 2;
 		display: grid;
 		gap: 1.5rem;
-		animation: rise-in 620ms ease both;
+	}
+
+	.section-shell {
+		position: relative;
 	}
 
 	.mural-hero__copy :global(.section-description) {
@@ -219,7 +222,6 @@
 		display: grid;
 		height: min(66svh, 34rem);
 		place-items: end center;
-		animation: rise-in 700ms 80ms ease both;
 	}
 
 	.mural-hero__portrait img {
@@ -480,13 +482,6 @@
 		}
 		.contact-links {
 			gap: 1.5rem;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.mural-hero__copy,
-		.mural-hero__portrait {
-			animation: none;
 		}
 	}
 </style>

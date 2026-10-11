@@ -66,7 +66,11 @@
 	function scrollToItem(index: number) {
 		current = (index + items.length) % items.length;
 		const item = scroller?.querySelectorAll<HTMLElement>('[data-gallery-item]')[current];
-		item?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+		item?.scrollIntoView({
+			behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+			block: 'nearest',
+			inline: 'center'
+		});
 	}
 
 	function updateCurrentFromScroll() {
@@ -351,14 +355,11 @@
 		font-size: 0.84rem;
 		font-weight: 800;
 		padding: 0.58rem 0.8rem;
-		transition:
-			background 180ms ease,
-			transform 180ms ease;
+		transition: background 150ms ease;
 	}
 
 	.gallery-toolbar button:hover {
 		background: var(--sage-light);
-		transform: translateY(-1px);
 	}
 
 	.carousel-wrap {
@@ -406,15 +407,6 @@
 		height: 100%;
 		width: 100%;
 		object-fit: cover;
-		transition:
-			transform 350ms ease,
-			opacity 200ms ease;
-	}
-
-	.carousel article > button:hover img,
-	.gallery-grid article > button:hover img {
-		transform: scale(1.015);
-		opacity: 0.94;
 	}
 
 	.gallery-image--contain {
@@ -457,18 +449,11 @@
 		background: var(--paper);
 		color: var(--navy);
 		box-shadow: 0 0.4rem 1.6rem color-mix(in srgb, var(--navy) 16%, transparent);
-		transition:
-			background 180ms ease,
-			transform 180ms ease;
+		transition: background 150ms ease;
 	}
 
 	.carousel-control:hover {
 		background: var(--sage-light);
-		transform: scale(1.07);
-	}
-
-	.carousel-control:active {
-		transform: scale(0.97);
 	}
 
 	.carousel-control--left {
@@ -545,6 +530,13 @@
 		height: 2.7rem;
 		min-width: 2.7rem;
 		color: white;
+		border-radius: 0.35rem;
+		transition: background 150ms ease;
+	}
+
+	.viewer-header button:hover,
+	.viewer-controls button:hover {
+		background: rgba(255, 255, 255, 0.09);
 	}
 
 	.viewer-stage {
@@ -567,7 +559,6 @@
 		object-fit: contain;
 		transform-origin: center;
 		user-select: none;
-		will-change: transform;
 	}
 
 	.viewer-controls {
@@ -633,8 +624,10 @@
 		.carousel {
 			scroll-behavior: auto;
 		}
-		.carousel img,
-		.gallery-grid img {
+		.gallery-toolbar button,
+		.carousel-control,
+		.viewer-header button,
+		.viewer-controls button {
 			transition: none;
 		}
 	}

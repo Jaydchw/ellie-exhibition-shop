@@ -59,14 +59,9 @@
 		line-height: 1;
 		text-decoration: none;
 		transition:
-			transform 180ms ease,
-			border-color 180ms ease,
-			background 180ms ease,
-			color 180ms ease;
-	}
-
-	.ui-button:hover {
-		transform: translateY(-1px);
+			border-color 150ms ease,
+			background 150ms ease,
+			color 150ms ease;
 	}
 
 	.ui-button:focus-visible {
@@ -132,5 +127,11 @@
 		min-height: 3rem;
 		padding: 0.85rem 1.15rem;
 		font-size: 0.96rem;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ui-button {
+			transition: none;
+		}
 	}
 </style>

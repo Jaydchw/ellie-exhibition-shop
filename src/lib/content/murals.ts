@@ -39,7 +39,7 @@ export const muralPageCopy = {
 			href: '#artwork-examples',
 			icon: 'examples'
 		},
-		{ label: 'Enquiries', shortLabel: 'Enquire', href: '#commission-process', icon: 'enquiry' },
+		{ label: 'How it works', shortLabel: 'Process', href: '#commission-process', icon: 'enquiry' },
 		{ label: 'Contact', shortLabel: 'Contact', href: '#contact', icon: 'contact' }
 	],
 	hero: {

@@ -1,18 +1,43 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/images/mural-concepts/ladybird-illustration.png';
+	import './shop.css';
+	import { onMount, setContext, untrack } from 'svelte';
+	import { page } from '$app/state';
+	import favicon from '$lib/assets/favicon.svg';
 	import SiteFooter from '$lib/components/site-footer.svelte';
 	import SiteHeader from '$lib/components/site-header.svelte';
-
-	let { children } = $props();
+	import CartDrawer from '$lib/components/shop/cart-drawer.svelte';
+	import UnderConstruction from '$lib/components/shop/under-construction.svelte';
+	import { storefrontOpen } from '$lib/commerce/availability';
+	import { SHOP, ShopState } from '$lib/commerce/shop.svelte';
+	let { data, children } = $props();
+	const shop = new ShopState(untrack(() => data.config));
+	setContext(SHOP, shop);
+	onMount(() => {
+		if (storefrontOpen) void shop.init(data.products);
+	});
+	let murals = $derived(page.url.pathname.replace(/\/$/, '') === '/murals');
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<meta name="theme-color" content="#f7f3ec" />
+	<meta property="og:site_name" content="Seal Stuff" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={page.url.origin + page.url.pathname} />
+	<link rel="canonical" href={page.url.origin + page.url.pathname} />
+	{#if !murals && (!storefrontOpen || !data.config.live)}
+		<meta name="robots" content="noindex, nofollow" />
+	{/if}
 </svelte:head>
 <a class="skip-link" href="#main-content">Skip to content</a>
 <div class="site-shell">
 	<SiteHeader />
-	{@render children()}
+	{#if storefrontOpen || murals}
+		{@render children()}
+	{:else}
+		<UnderConstruction />
+	{/if}
 	<SiteFooter />
 </div>
+{#if storefrontOpen}<CartDrawer />{/if}

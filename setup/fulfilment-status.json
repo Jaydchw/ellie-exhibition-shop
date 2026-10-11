@@ -1,0 +1,62 @@
+{
+	"updated": "2026-10-06",
+	"readyForLaunch": false,
+	"ordersOrPaymentsMade": false,
+	"requestedSizes": ["A4", "A3", "A2"],
+	"requestedFinishes": ["Poster", "Fine art print", "Black frame", "Natural frame", "White frame"],
+	"supplierFamilies": {
+		"Poster": "GLOBAL-BLP (170gsm poster paper)",
+		"Fine art print": "GLOBAL-FAP (200gsm enhanced matte art paper)",
+		"Frames": "GLOBAL-CFP (200gsm enhanced matte art paper, no mount, Perspex glaze)"
+	},
+	"products": {
+		"it-feels-like-a-cosmic-shard": {
+			"prodigiId": "6275010",
+			"automaticFulfilmentEnabled": false,
+			"image": "art-1.png",
+			"completedPlacements": ["A4 / Fine art print", "A3 / Fine art print"],
+			"warning": "The other 13 variants have temporary copied GLOBAL-FAP-A4 product/image assignments. These are NOT correct fulfilment mappings. All 15 variants are inactive. Clearing their copied image placements is awaiting user confirmation; rebuilding frames directly succeeds whereas changing copied paper/image configurations to frames returned Failed to update (404)."
+		},
+		"it-feels-like-love-is-the-key": {
+			"prodigiId": "6275011",
+			"image": "art-2.png",
+			"completedPlacements": ["A2 / Black frame", "A2 / Natural frame"],
+			"productAssignedButImageStillRequired": {
+				"A2 / Fine art print": "GLOBAL-FAP-A2",
+				"A2 / Poster": "GLOBAL-BLP-A2",
+				"A2 / White frame": "GLOBAL-CFP-A2, White",
+				"A3 / Black frame": "GLOBAL-CFP-A3, Black"
+			},
+			"unconfiguredVariants": 9
+		},
+		"it-feels-like-good-and-evil": {
+			"prodigiId": "6275012",
+			"image": "art-3.png",
+			"unconfiguredVariants": 15
+		},
+		"feels-like-a-whirl-pool": {
+			"prodigiId": "6275013",
+			"image": "art-4.png",
+			"unconfiguredVariants": 15
+		},
+		"it-feels-like-it-is-consuming-me": {
+			"prodigiId": "6275014",
+			"image": "art-5.png",
+			"unconfiguredVariants": 15
+		},
+		"it-feels-like-a-ball-of-light": {
+			"prodigiId": "6275015",
+			"image": "art-6.png",
+			"unconfiguredVariants": 15
+		}
+	},
+	"remainingAccountWork": [
+		"Complete all variant product and image mappings, then verify size, frame colour, artwork and landscape fit for every variant",
+		"Shopify identity/address/payment verification",
+		"Prodigi payment method (user entry; no payment authorized)",
+		"Shipping zones/rates, Markets, destination coverage and exact margins",
+		"Refund, shipping and terms policies",
+		"Account, newsletter and checkout verification without placing paid orders",
+		"Publish approved catalogue to Headless and deploy production after setup is complete"
+	]
+}

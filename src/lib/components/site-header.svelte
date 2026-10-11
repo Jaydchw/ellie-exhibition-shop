@@ -1,123 +1,182 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import HouseSimple from 'phosphor-svelte/lib/HouseSimple';
-	import PaintBrushBroad from 'phosphor-svelte/lib/PaintBrushBroad';
-	import Palette from 'phosphor-svelte/lib/Palette';
-	import { siteCopy } from '$lib/content/site';
-
-	function isCurrent(href: string) {
-		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
-	}
+	import { storefrontOpen } from '$lib/commerce/availability';
+	import { useShop } from '$lib/commerce/shop.svelte';
+	import Icon from './shop/icon.svelte';
+	import { isClothing, isOnSale } from '$lib/commerce/presentation';
+	import type { Product } from '$lib/commerce/types';
+	const shop = useShop();
+	let menu = $state(false);
+	let hasClothing = $derived(page.data.products?.some(isClothing) ?? false);
+	let murals = $derived(page.url.pathname.startsWith('/murals'));
+	$effect(() => {
+		void page.url.href;
+		menu = false;
+	});
 </script>
 
-<header class="site-header">
-	<div class="site-header__inner">
-		<a class="brand" href={resolve('/')} aria-label="Ellie Seal home">
-			<span>{siteCopy.name}</span>
-		</a>
-		<nav aria-label="Main navigation">
-			{#each siteCopy.navigation as item (item.href)}
+{#if !storefrontOpen}
+	<header class="artist-header">
+		<div class="artist-header__inner wrap">
+			<a class="artist-wordmark" href={resolve('/murals')} aria-label="Ellie Seal murals">
+				Ellie Seal<span>MURALS & COMMISSIONS</span>
+			</a>
+			<nav class="artist-navigation" aria-label="Main navigation">
+				<a href={resolve('/murals')} aria-current={murals ? 'page' : undefined}>Murals</a>
 				<a
-					href={resolve(item.href)}
-					class:nav-link--active={isCurrent(item.href)}
-					aria-current={isCurrent(item.href) ? 'page' : undefined}
+					href={resolve('/shop')}
+					class="artist-navigation__shop"
+					aria-current={page.url.pathname === '/shop' ? 'page' : undefined}>Shop</a
 				>
-					{#if item.icon === 'home'}
-						<HouseSimple size={17} weight="bold" aria-hidden="true" />
-					{:else if item.icon === 'art'}
-						<Palette size={17} weight="bold" aria-hidden="true" />
-					{:else}
-						<PaintBrushBroad size={17} weight="bold" aria-hidden="true" />
-					{/if}
-					<span>{item.label}</span>
-				</a>
-			{/each}
-		</nav>
-	</div>
-</header>
+			</nav>
+		</div>
+	</header>
+{:else}
+	{#if !murals}<div class="announcement">
+			{#if page.data.products?.some((p: Product) => p.variants.some(isOnSale))}<a
+					href={resolve('/shop?category=sale')}
+					>Selected products on sale <Icon name="arrow" size={14} /></a
+				>{:else}Prints{hasClothing ? ' & clothing' : ' & posters'} by Ellie Seal{/if}<span
+				>International delivery</span
+			>
+		</div>{/if}
+	<header class="shop-header" class:mural-header={murals}>
+		<div class="shop-header__inner wrap">
+			<button
+				class="icon-button mobile-menu"
+				aria-label="Toggle navigation"
+				aria-expanded={menu}
+				aria-controls="main-nav"
+				onclick={() => (menu = !menu)}><Icon name={menu ? 'close' : 'menu'} /></button
+			>
+			<a
+				class="wordmark"
+				href={resolve(murals ? '/murals' : '/')}
+				aria-label={murals ? 'Ellie Seal murals' : 'Seal Stuff home'}
+				>{murals ? 'Ellie Seal' : 'Seal Stuff'}<span
+					>{murals ? 'MURALS & COMMISSIONS' : 'BY ELLIE SEAL'}</span
+				></a
+			>
+			<nav id="main-nav" class:expanded={menu} aria-label="Main navigation">
+				<a
+					href={resolve('/shop')}
+					aria-current={page.url.pathname === '/shop' && !page.url.search ? 'page' : undefined}
+					>Shop all</a
+				>
+				<a href={resolve('/shop?category=prints')}>Prints</a>
+				{#if hasClothing}<a href={resolve('/shop?category=clothing')}>Clothing</a>{/if}
+				<a
+					href={resolve('/about')}
+					aria-current={page.url.pathname === '/about' ? 'page' : undefined}>About</a
+				>
+				<a href={resolve('/murals')} class="mural-link" aria-current={murals ? 'page' : undefined}
+					>Murals ↗</a
+				>
+			</nav>
+			<div class="header-actions">
+				<a class="icon-button" href={resolve('/shop?search=1')} aria-label="Search the shop"
+					><Icon name="search" size={20} /></a
+				>
+				<a class="icon-button account-shortcut" href={resolve('/account')} aria-label="Your account"
+					><Icon name="user" size={20} /></a
+				>
+				<a class="icon-button saved-shortcut" href={resolve('/saved')} aria-label="Saved products"
+					><Icon name="heart" size={20} /></a
+				>
+				<button
+					class="icon-button bag-toggle"
+					aria-label={`Open bag, ${shop.count} items`}
+					onclick={() => (shop.open = true)}
+					><Icon name="bag" size={20} /><span>{shop.count}</span></button
+				>
+			</div>
+		</div>
+	</header>
+{/if}
 
 <style>
-	.site-header {
+	.artist-header {
 		position: sticky;
-		z-index: 30;
 		top: 0;
+		z-index: 30;
 		border-bottom: 1px solid var(--line);
-		background: color-mix(in srgb, var(--paper) 96%, transparent);
-		box-shadow: 0 0.35rem 1.4rem color-mix(in srgb, var(--navy) 6%, transparent);
-		backdrop-filter: blur(16px);
+		background: #f7f3ecf5;
+		backdrop-filter: blur(12px);
+		color: var(--navy);
 	}
 
-	.site-header__inner {
+	.artist-header__inner {
 		display: flex;
-		width: min(var(--content-width), calc(100% - 1.25rem));
-		height: var(--site-header-height);
 		align-items: center;
 		justify-content: space-between;
-		gap: 0.6rem;
-		margin-inline: auto;
+		gap: 1.5rem;
+		min-height: var(--site-header-height);
 	}
 
-	.brand {
+	.artist-wordmark {
+		font-size: 2.3rem;
+		font-weight: 600;
+		letter-spacing: -0.075em;
+		line-height: 0.95;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.artist-wordmark span {
+		display: block;
+		margin-top: 0.6rem;
+		font-family: var(--font-sans);
+		font-size: 0.45rem;
+		font-weight: 500;
+		letter-spacing: 0.19em;
+	}
+
+	.artist-navigation {
+		display: flex;
+		align-items: center;
+		gap: 2rem;
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+	}
+
+	.artist-navigation a {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
-		color: var(--navy);
-		font-family: var(--font-serif);
-		font-size: 1.08rem;
-		font-weight: 700;
-		line-height: 1;
+		min-height: 44px;
 		text-decoration: none;
+		white-space: nowrap;
 	}
 
-	nav {
-		display: flex;
-		align-items: center;
-		gap: 0.2rem;
+	.artist-navigation a:hover,
+	.artist-navigation a:focus-visible,
+	.artist-navigation a[aria-current='page'] {
+		text-decoration: underline;
+		text-underline-offset: 7px;
 	}
 
-	nav a {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.36rem;
-		border-radius: 999px;
-		color: var(--body);
-		font-family: var(--font-sans);
-		font-size: 0.69rem;
-		font-weight: 700;
-		padding: 0.5rem 0.55rem;
-		text-decoration: none;
-	}
-
-	nav a:hover,
-	.nav-link--active {
-		background: color-mix(in srgb, var(--sage-light) 72%, transparent);
-		color: var(--navy);
-	}
-
-	@media (min-width: 600px) {
-		.site-header__inner {
-			width: min(var(--content-width), calc(100% - 2rem));
-			gap: 1.5rem;
+	@media (max-width: 600px) {
+		.artist-header__inner {
+			gap: 0.75rem;
 		}
 
-		.brand {
-			font-size: 1.5rem;
+		.artist-wordmark {
+			font-size: 1.7rem;
 		}
 
-		nav {
-			gap: 0.4rem;
+		.artist-wordmark span {
+			font-size: 0.34rem;
+			letter-spacing: 0.12em;
 		}
 
-		nav a {
-			font-size: 0.84rem;
-			padding: 0.62rem 0.85rem;
+		.artist-navigation {
+			gap: 0.8rem;
+			font-size: 0.65rem;
 		}
-	}
 
-	@media (max-width: 390px) {
-		nav a {
-			padding-inline: 0.46rem;
+		.artist-navigation a {
+			gap: 0.25rem;
 		}
 	}
 </style>
