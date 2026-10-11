@@ -1,271 +1,256 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { isClothing, isOnSale } from '$lib/commerce/presentation';
-	import ProductCard from '$lib/components/shop/product-card.svelte';
-	import ProductMedia from '$lib/components/shop/product-media.svelte';
+	import ShoppingBag from 'phosphor-svelte/lib/ShoppingBag';
+	import Palette from 'phosphor-svelte/lib/Palette';
+	import InstagramLogo from 'phosphor-svelte/lib/InstagramLogo';
+	import FacebookLogo from 'phosphor-svelte/lib/FacebookLogo';
+	import EnvelopeSimple from 'phosphor-svelte/lib/EnvelopeSimple';
+	import Button from '$lib/components/ui/button.svelte';
 	import LeafAccent from '$lib/components/ui/leaf-accent.svelte';
-	import Icon from '$lib/components/shop/icon.svelte';
-	import mural from '$lib/assets/images/murals/botanical-kitchen-mural.jpg';
-	let { data } = $props();
-	let prints = $derived(data.products.filter((p) => !isClothing(p)));
-	let clothing = $derived(data.products.filter(isClothing));
-	let sale = $derived(data.products.some((p) => p.variants.some(isOnSale)));
+	import SectionHeading from '$lib/components/ui/section-heading.svelte';
+	import portrait from '$lib/assets/images/murals/ellie-seal-mural-artist.png';
+	import { socialLinks } from '$lib/content/site';
+
+	const socials = [
+		{ ...socialLinks.instagram, icon: InstagramLogo },
+		{ ...socialLinks.facebook, icon: FacebookLogo },
+		{ ...socialLinks.email, icon: EnvelopeSimple }
+	];
+	const description =
+		'Fine art and custom murals by Ellie Seal. Visit the Seal Stuff shop or get in touch.';
 </script>
 
-<svelte:head
-	><title>Seal Stuff — Prints & {clothing.length ? 'clothing' : 'posters'} by Ellie Seal</title
-	><meta
-		name="description"
-		content={clothing.length
-			? 'Art prints, framed prints, T-shirts and hoodies by Ellie Seal. Shop the Seal Stuff collection.'
-			: 'Art prints, posters and framed prints by Ellie Seal. Shop the Seal Stuff collection.'}
-	/></svelte:head
->
-<main id="main-content" class="shop-page">
-	<section class="home-hero">
-		<div class="wrap hero-layout">
-			<div class="hero-copy">
-				<h1>Prints &<br />{clothing.length ? 'clothing.' : 'posters.'}</h1>
-				<p>
-					Artwork by Ellie Seal.<br />{clothing.length
-						? 'Posters, framed prints and unisex clothing.'
-						: 'Available unframed or ready to hang.'}
-				</p>
-				<div class="hero-links">
-					<a class="button" href={resolve('/shop')}>Shop all <Icon name="arrow" size={18} /></a><a
-						class="text-link"
-						href={resolve('/about')}>About Ellie</a
-					>
+<svelte:head>
+	<title>Ellie Seal — Fine Art & Murals</title>
+	<meta name="description" content={description} />
+	<meta property="og:title" content="Ellie Seal — Fine Art & Murals" />
+	<meta property="og:description" content={description} />
+</svelte:head>
+
+<main id="main-content" class="index-page">
+	<section class="artist-hero" aria-labelledby="artist-title">
+		<LeafAccent side="right" size="large" />
+		<div class="hero-word" aria-hidden="true">ARTIST</div>
+		<div class="artist-hero__inner wrap">
+			<div class="artist-hero__copy">
+				<SectionHeading
+					title="Ellie Seal"
+					description="Fine artist & mural painter."
+					level="h1"
+					headingId="artist-title"
+				/>
+				<div class="destinations">
+					<Button href={resolve('/murals')} size="lg">
+						<Palette size={20} aria-hidden="true" />
+						View murals
+					</Button>
+					<Button href={resolve('/shop')} variant="outline" size="lg">
+						<ShoppingBag size={20} aria-hidden="true" />
+						Visit shop
+					</Button>
 				</div>
-				{#if sale}<a class="hero-sale" href={resolve('/shop?category=sale')}
-						><Icon name="tag" size={18} /> Selected products on sale <Icon
-							name="arrow"
-							size={16}
-						/></a
-					>{/if}
+				<nav class="socials" aria-label="Social media and contact">
+					{#each socials as social (social.href)}
+						<!-- eslint-disable svelte/no-navigation-without-resolve -- Existing external social and email destinations. -->
+						<a
+							href={social.href}
+							target={social.label === 'Email' ? undefined : '_blank'}
+							rel={social.label === 'Email' ? undefined : 'noreferrer'}
+						>
+							<social.icon size={20} aria-hidden="true" />
+							<span>{social.label}</span>
+						</a>
+						<!-- eslint-enable svelte/no-navigation-without-resolve -->
+					{/each}
+				</nav>
 			</div>
-			<div class="hero-art">
-				<LeafAccent side="right" size="large" />
-				{#if prints[0]}<a
-						class="hero-frame main-frame"
-						href={resolve('/shop/[handle]', { handle: prints[0].handle })}
-						aria-label={`Shop ${prints[0].title}`}
-						><ProductMedia product={prints[0]} finish="Natural frame" eager /></a
-					>{/if}
-				{#if prints[3]}<a
-						class="hero-frame second-frame"
-						href={resolve('/shop/[handle]', { handle: prints[3].handle })}
-						aria-label={`Shop ${prints[3].title}`}
-						><ProductMedia product={prints[3]} finish="Black frame" eager /></a
-					>{/if}
+			<div class="artist-hero__portrait">
+				<img
+					src={portrait}
+					alt="Ellie Seal holding a paintbrush"
+					width="2400"
+					height="1351"
+					fetchpriority="high"
+				/>
 			</div>
-		</div>
-	</section>
-	<div class="category-strip wrap">
-		<a href={resolve('/shop?category=prints')}><Icon name="frame" size={21} /> Prints & posters</a
-		><a href={resolve('/shop?finish=frame')}><Icon name="frame" size={21} /> Framed prints</a
-		>{#if clothing.length}<a href={resolve('/shop?category=clothing')}
-				><Icon name="shirt" size={21} /> T-shirts & hoodies</a
-			>{/if}<a href={resolve('/help')}><Icon name="globe" size={21} /> International delivery</a>
-	</div>
-	<section class="section wrap">
-		<div class="section-heading">
-			<h2>Prints</h2>
-			<a class="text-link" href={resolve('/shop?category=prints')}>View all prints</a>
-		</div>
-		{#if data.catalogError}<p class="error-message">
-				Products could not be loaded. Please refresh to try again.
-			</p>{:else if !prints.length}<p>No prints available.</p>{:else}<div class="product-grid">
-				{#each prints.slice(0, 3) as product, index (product.id)}<ProductCard
-						{product}
-						{index}
-					/>{/each}
-			</div>{/if}
-	</section>
-	{#if clothing.length}<section class="clothing-section">
-			<div class="section wrap">
-				<div class="section-heading">
-					<h2>T-shirts & hoodies</h2>
-					<a class="text-link" href={resolve('/shop?category=clothing')}>View all clothing</a>
-				</div>
-				<div class="product-grid">
-					{#each clothing.slice(0, 3) as product, index (product.id)}<ProductCard
-							{product}
-							{index}
-						/>{/each}
-				</div>
-			</div>
-		</section>{/if}
-	<section class="mural-teaser wrap">
-		<img src={mural} alt="Botanical kitchen mural painted by Ellie Seal" loading="lazy" />
-		<div>
-			<h2>Murals by<br />Ellie Seal</h2>
-			<p>Hand-painted murals for homes and businesses.</p>
-			<a class="button secondary" href={resolve('/murals')}
-				>View murals <Icon name="external" size={18} /></a
-			>
 		</div>
 	</section>
 </main>
 
 <style>
-	.home-hero {
-		overflow: hidden;
-		border-bottom: 1px solid var(--line);
+	.index-page {
+		color: var(--navy);
 	}
-	.hero-layout {
-		display: grid;
-		grid-template-columns: 0.85fr 1.15fr;
-		align-items: center;
-		min-height: 570px;
-		gap: 2rem;
-	}
-	.hero-copy {
-		padding-block: 3rem;
+
+	.artist-hero {
 		position: relative;
-		z-index: 1;
+		overflow: clip;
 	}
-	.hero-copy h1 {
-		font-size: clamp(5rem, 8vw, 8rem);
-		line-height: 0.9;
-		margin: 0 0 1.6rem;
-	}
-	.hero-copy p {
-		font-size: 0.9rem;
-		color: var(--body);
-		margin-bottom: 2rem;
-	}
-	.hero-links {
-		display: flex;
+
+	.artist-hero__inner {
+		position: relative;
+		display: grid;
+		grid-template-columns: minmax(0, 0.95fr) minmax(0, 0.8fr);
 		align-items: center;
-		gap: 1.8rem;
+		gap: clamp(1rem, 5vw, 4rem);
+		min-height: max(39rem, calc(100svh - var(--site-header-height) - 4.5rem));
+		padding-block: clamp(2.5rem, 6vw, 5rem) 1.5rem;
 	}
-	.hero-sale {
-		display: flex;
-		gap: 0.65rem;
-		align-items: center;
-		text-decoration: none;
+
+	.hero-word {
+		position: absolute;
+		top: 55%;
+		right: max(-0.04em, calc((100vw - var(--content-width)) / 2));
+		transform: translateY(-50%);
+		color: color-mix(in srgb, var(--sage) 18%, transparent);
 		font-family: var(--font-sans);
-		font-size: 0.72rem;
-		color: var(--sale);
+		font-size: clamp(8rem, 21vw, 20rem);
+		font-weight: 850;
+		letter-spacing: -0.08em;
+		line-height: 0.72;
+		white-space: nowrap;
+		pointer-events: none;
+	}
+
+	.artist-hero__copy {
+		position: relative;
+		z-index: 2;
+		min-width: 0;
+	}
+
+	.artist-hero__copy :global(h1) {
+		max-width: 4ch;
+		text-wrap: balance;
+	}
+
+	.artist-hero__copy :global(.section-description) {
+		margin-top: 1rem;
+	}
+
+	.destinations {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.8rem 1.5rem;
 		margin-top: 2rem;
 	}
-	.hero-art {
-		position: relative;
-		height: 520px;
-	}
-	.hero-frame {
-		position: absolute;
-		display: block;
-		transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
-	}
-	.hero-frame:hover {
-		transform: translateY(-5px) rotate(0);
-	}
-	.main-frame {
-		width: 76%;
-		left: 0;
-		top: 12%;
-		transform: rotate(-5deg);
-	}
-	.second-frame {
-		width: 54%;
-		right: -1%;
-		bottom: 11%;
-		transform: rotate(6deg);
-	}
-	.category-strip {
+
+	.socials {
 		display: flex;
-		justify-content: space-between;
-		gap: 1rem;
-		padding-block: 1.3rem;
+		flex-wrap: wrap;
+		gap: 0.25rem 1.6rem;
+		margin-top: 2rem;
 	}
-	.category-strip a {
-		display: flex;
+
+	.socials a {
+		display: inline-flex;
+		min-height: 44px;
 		align-items: center;
-		gap: 0.6rem;
+		gap: 0.5rem;
+		color: var(--body);
 		font-family: var(--font-sans);
-		font-size: 0.7rem;
+		font-size: 0.78rem;
+		font-weight: 600;
 		text-decoration: none;
+		touch-action: manipulation;
 	}
-	.category-strip a:hover {
+
+	.socials a:hover,
+	.socials a:focus-visible {
+		color: var(--navy);
 		text-decoration: underline;
 		text-underline-offset: 5px;
 	}
-	.clothing-section {
-		background: #eee9e0;
-	}
-	.mural-teaser {
+
+	.artist-hero__portrait {
+		position: relative;
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		background: var(--sage-light);
-		margin-block: 5rem;
+		height: min(66svh, 34rem);
+		place-items: end center;
 	}
-	.mural-teaser img {
-		width: 100%;
-		height: 320px;
-		object-fit: cover;
+
+	.artist-hero__portrait img {
+		position: relative;
+		z-index: 1;
+		display: block;
+		width: 190%;
+		max-width: none;
+		height: auto;
+		transform: translateX(3%);
 	}
-	.mural-teaser > div {
-		padding: 2.5rem;
-		align-self: center;
-	}
-	.mural-teaser p {
-		font-size: 0.8rem;
-		margin-bottom: 1.5rem;
-	}
-	@media (max-width: 760px) {
-		.hero-layout {
+
+	@media (max-width: 820px) {
+		.artist-hero__inner {
 			grid-template-columns: 1fr;
 			gap: 0;
-			min-height: 0;
+			min-height: auto;
+			padding-block: 3rem 0;
 		}
-		.hero-copy {
-			padding-block: 2.5rem 0;
+
+		.artist-hero__copy :global(h1) {
+			max-width: none;
 		}
-		.hero-copy h1 {
-			font-size: 4.8rem;
+
+		.artist-hero__portrait {
+			height: auto;
+			min-height: 17rem;
+			margin-top: 1rem;
 		}
-		.hero-copy p {
-			margin-bottom: 1.5rem;
+
+		.artist-hero__portrait img {
+			width: 150%;
+			transform: translateX(4%);
 		}
-		.hero-sale {
-			margin-top: 1.3rem;
+
+		.hero-word {
+			top: auto;
+			right: 50%;
+			bottom: 8rem;
+			transform: translateX(50%);
+			font-size: clamp(5.2rem, 23vw, 11rem);
 		}
-		.hero-art {
-			height: 340px;
+	}
+
+	@media (max-width: 560px) {
+		.artist-hero__inner {
+			padding-top: 2.5rem;
+		}
+
+		.artist-hero__copy :global(.section-description) {
 			margin-top: 0.5rem;
+			font-size: 1rem;
 		}
-		.main-frame {
-			width: 70%;
-			top: 12%;
-			left: 2%;
+
+		.destinations {
+			gap: 0.6rem 1rem;
+			margin-top: 1.5rem;
 		}
-		.second-frame {
-			width: 48%;
-			right: 3%;
-			bottom: 12%;
+
+		.destinations :global(.ui-button) {
+			padding-inline: 0.75rem;
+			font-size: 0.82rem;
 		}
-		.category-strip {
-			flex-wrap: wrap;
-			justify-content: flex-start;
-			gap: 1.2rem 2rem;
+
+		.socials {
+			gap: 0.2rem 1.1rem;
+			margin-top: 1.25rem;
 		}
-		.category-strip a {
-			font-size: 0.68rem;
+
+		.socials a {
+			font-size: 0.72rem;
 		}
-		.category-strip a:last-child {
-			display: none;
+
+		.artist-hero__portrait {
+			min-height: 15rem;
 		}
-		.mural-teaser {
-			grid-template-columns: 1fr;
-			margin-block: 3rem;
+
+		.artist-hero__portrait img {
+			width: 160%;
+			transform: translateX(2%);
 		}
-		.mural-teaser img {
-			height: 240px;
-		}
-		.mural-teaser > div {
-			padding: 2rem;
+
+		.hero-word {
+			bottom: 6rem;
 		}
 	}
 </style>

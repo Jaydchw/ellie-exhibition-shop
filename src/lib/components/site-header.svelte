@@ -9,39 +9,41 @@
 	const shop = useShop();
 	let menu = $state(false);
 	let hasClothing = $derived(page.data.products?.some(isClothing) ?? false);
+	let home = $derived(page.url.pathname === '/');
 	let murals = $derived(page.url.pathname.startsWith('/murals'));
+	let artistPage = $derived(home || murals);
 	$effect(() => {
 		void page.url.href;
 		menu = false;
 	});
 </script>
 
-{#if !storefrontOpen}
+{#if !storefrontOpen || artistPage}
 	<header class="artist-header">
 		<div class="artist-header__inner wrap">
-			<a class="artist-wordmark" href={resolve('/murals')} aria-label="Ellie Seal murals">
-				Ellie Seal<span>MURALS & COMMISSIONS</span>
+			<a class="artist-wordmark" href={resolve('/')} aria-label="Ellie Seal home">
+				Ellie Seal<span>ART, PRINTS & MURALS</span>
 			</a>
 			<nav class="artist-navigation" aria-label="Main navigation">
-				<a href={resolve('/murals')} aria-current={murals ? 'page' : undefined}>Murals</a>
+				<a href={resolve('/')} aria-current={home ? 'page' : undefined}>Home</a>
 				<a
 					href={resolve('/shop')}
-					class="artist-navigation__shop"
-					aria-current={page.url.pathname === '/shop' ? 'page' : undefined}>Shop</a
+					aria-current={page.url.pathname.startsWith('/shop') ? 'page' : undefined}>Shop</a
 				>
+				<a href={resolve('/murals')} aria-current={murals ? 'page' : undefined}>Murals</a>
 			</nav>
 		</div>
 	</header>
 {:else}
-	{#if !murals}<div class="announcement">
-			{#if page.data.products?.some((p: Product) => p.variants.some(isOnSale))}<a
-					href={resolve('/shop?category=sale')}
-					>Selected products on sale <Icon name="arrow" size={14} /></a
-				>{:else}Prints{hasClothing ? ' & clothing' : ' & posters'} by Ellie Seal{/if}<span
-				>International delivery</span
-			>
-		</div>{/if}
-	<header class="shop-header" class:mural-header={murals}>
+	<div class="announcement">
+		{#if page.data.products?.some((p: Product) => p.variants.some(isOnSale))}<a
+				href={resolve('/shop?category=sale')}
+				>Selected products on sale <Icon name="arrow" size={14} /></a
+			>{:else}Prints{hasClothing ? ' & clothing' : ' & posters'} by Ellie Seal{/if}<span
+			>International delivery</span
+		>
+	</div>
+	<header class="shop-header">
 		<div class="shop-header__inner wrap">
 			<button
 				class="icon-button mobile-menu"
@@ -50,15 +52,11 @@
 				aria-controls="main-nav"
 				onclick={() => (menu = !menu)}><Icon name={menu ? 'close' : 'menu'} /></button
 			>
-			<a
-				class="wordmark"
-				href={resolve(murals ? '/murals' : '/')}
-				aria-label={murals ? 'Ellie Seal murals' : 'Seal Stuff home'}
-				>{murals ? 'Ellie Seal' : 'Seal Stuff'}<span
-					>{murals ? 'MURALS & COMMISSIONS' : 'BY ELLIE SEAL'}</span
-				></a
+			<a class="wordmark" href={resolve('/shop')} aria-label="Seal Stuff shop"
+				>Seal Stuff<span>BY ELLIE SEAL</span></a
 			>
 			<nav id="main-nav" class:expanded={menu} aria-label="Main navigation">
+				<a href={resolve('/')}>Home</a>
 				<a
 					href={resolve('/shop')}
 					aria-current={page.url.pathname === '/shop' && !page.url.search ? 'page' : undefined}
@@ -70,9 +68,7 @@
 					href={resolve('/about')}
 					aria-current={page.url.pathname === '/about' ? 'page' : undefined}>About</a
 				>
-				<a href={resolve('/murals')} class="mural-link" aria-current={murals ? 'page' : undefined}
-					>Murals ↗</a
-				>
+				<a href={resolve('/murals')} class="mural-link">Murals ↗</a>
 			</nav>
 			<div class="header-actions">
 				<a class="icon-button" href={resolve('/shop?search=1')} aria-label="Search the shop"

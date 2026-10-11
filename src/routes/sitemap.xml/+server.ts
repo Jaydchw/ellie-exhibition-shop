@@ -3,24 +3,21 @@ import { getProducts } from '$lib/commerce/shopify';
 import { storefrontOpen } from '$lib/commerce/availability';
 import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async ({ url, fetch }) => {
-	let paths: string[] = ['/murals'];
+	const paths: string[] = ['', '/murals'];
 	if (storefrontOpen) {
 		const config = getShopConfig();
-		if (!config.live) {
-			return new Response('Catalogue temporarily unavailable', { status: 503 });
-		}
-		try {
-			const products = await getProducts(config, fetch);
-			paths = [
-				'',
-				'/shop',
-				'/about',
-				'/help',
-				'/murals',
-				...products.map((p) => '/shop/' + encodeURIComponent(p.handle))
-			];
-		} catch {
-			return new Response('Catalogue temporarily unavailable', { status: 503 });
+		if (config.live) {
+			try {
+				const products = await getProducts(config, fetch);
+				paths.push(
+					'/shop',
+					'/about',
+					'/help',
+					...products.map((p) => '/shop/' + encodeURIComponent(p.handle))
+				);
+			} catch {
+				// Keep the artist index and mural portfolio discoverable during catalogue outages.
+			}
 		}
 	}
 	const escape = (value: string) =>

@@ -3,7 +3,7 @@ import { getProducts } from '$lib/commerce/shopify';
 import { storefrontOpen } from '$lib/commerce/availability';
 import type { ShopConfig } from '$lib/commerce/types';
 import type { LayoutServerLoad } from './$types';
-export const load: LayoutServerLoad = async ({ fetch }) => {
+export const load: LayoutServerLoad = async ({ fetch, url }) => {
 	if (!storefrontOpen) {
 		const config: ShopConfig = {
 			domain: '',
@@ -16,6 +16,12 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 		return { config, products: [], catalogError: false };
 	}
 	const config = getShopConfig();
+	// Public artist pages should never wait for the shop catalogue. Keep the real
+	// config so the shared client shop can be used when navigating to /shop later.
+	const path = url.pathname.replace(/\/$/, '');
+	if (path === '' || path === '/murals') {
+		return { config, products: [], catalogError: false };
+	}
 	if (config.invalid) return { config, products: [], catalogError: true };
 	if (!config.live) return { config, products: [], catalogError: true };
 	try {

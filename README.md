@@ -1,6 +1,6 @@
 # Seal Stuff
 
-Svelte 5 storefront for Ellie Seal’s prints, posters, framed art and clothing. Shopify owns the live catalogue, cart, checkout, customer accounts and email subscribers. Prodigi fulfils orders through its Shopify integration. `/murals` retains Ellie’s original portfolio and commission flow.
+Svelte 5 artist website for Ellie Seal. `/` is an artist index with social and contact links and routes to the shop and murals. `/shop` offers prints, posters, framed art and clothing; `/murals` retains Ellie’s portfolio and commission flow. Shopify owns the live catalogue, cart, checkout, customer accounts and email subscribers. Prodigi fulfils orders through its Shopify integration.
 
 ## Run
 
@@ -20,9 +20,9 @@ Restart the dev server to switch modes. Other Vite options still work, for examp
 
 For a build, use `npm run build -- --construction=true` or `npm run build -- --construction=false`. Both the browser and server use that build's setting; `npm run preview` and deployed sites keep the setting from the build. You can also set `SHOP_UNDER_CONSTRUCTION=true` or `false` in `.env` or the deployment **build** environment. The command-line flag takes priority. Changing a deployed runtime environment variable alone does not change this setting: rebuild to switch it.
 
-While construction is enabled, all ecommerce pages show a non-interactive grid of existing artwork behind a construction notice and navy tape below the navbar; `/murals` and its commission/contact flow remain active. The navbar and footer stay usable, with no modal or scroll locking. The decorative backdrop has no prices or shopping controls. No live catalogue, cart, account or newsletter is loaded, and no Shopify requests are made while closed, even with credentials configured. The sitemap lists only `/murals`. Demo products are no longer a storefront fallback.
+While construction is enabled, ecommerce pages show a non-interactive grid of existing artwork behind a construction notice and navy tape below the navbar. The artist index at `/` and the portfolio and commission/contact flow at `/murals` remain active. The navbar and footer stay usable, with no modal or scroll locking. The decorative backdrop has no prices or shopping controls. No live catalogue, cart, account or newsletter is loaded, and no Shopify requests are made while closed, even with credentials configured. The sitemap lists `/` and `/murals`. Demo products are no longer a storefront fallback.
 
-Setting `--construction=false` restores the ecommerce pages for testing. Missing/partial Shopify configuration and API failures show an unavailable catalogue rather than demo products. Keep production under construction until the launch checks below are complete.
+Setting `--construction=false` restores the ecommerce pages for testing. Missing/partial Shopify configuration and API failures show an unavailable catalogue rather than demo products. The artist index and murals remain accessible, and the sitemap keeps those public pages while omitting unavailable shop URLs. Keep production under construction until the launch checks below are complete.
 
 ## Launch checklist
 
@@ -70,7 +70,8 @@ Design and copy references: [Anthropic frontend-design skill](https://github.com
 - Live products, options, prices, availability and descriptions: **Shopify**. Additional options and catalogue pages are read automatically. GBP is the display currency; international delivery is configured at checkout, not a multi-currency switcher.
 - Clothing data: `src/lib/content/clothing.json`; regenerate the editable SVG garment illustrations with `node scripts/create-clothing-mockups.mjs`. Illustrations are design concepts, not supplier photography or production files. Replace them with approved Prodigi mockups in Shopify.
 - Demo prices/sizes: `src/lib/content/print-options.json`; demo artwork descriptions: `src/lib/art.ts`.
-- Shared copy/contact/FAQ: `src/lib/content/shop.ts`. Home and about editorial layouts: `src/routes/+page.svelte`, `src/routes/about/+page.svelte`.
+- Artist index: `src/routes/+page.svelte`; social/contact destinations: `src/lib/content/site.ts`.
+- Shop copy/contact/FAQ: `src/lib/content/shop.ts`. About editorial layout: `src/routes/about/+page.svelte`.
 - Shop theme: `src/routes/shop.css`; original shared palette: `src/routes/layout.css`.
 - Commerce API/data types: `src/lib/commerce/`. Per-visitor cart/wishlist state is created in the root layout, not a server singleton. Only a public Storefront token reaches the browser.
 - Murals: `src/routes/murals/+page.svelte` and `src/lib/content/murals.ts` (content unchanged).

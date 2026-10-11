@@ -7,17 +7,28 @@
 	import Newsletter from './shop/newsletter.svelte';
 	import { isClothing } from '$lib/commerce/presentation';
 	let hasClothing = $derived(page.data.products?.some(isClothing) ?? false);
+	let artistPage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/murals'));
 </script>
 
-{#if !storefrontOpen}
+{#if page.url.pathname === '/'}
+	<footer class="home-footer">
+		<div class="home-footer__inner wrap">
+			<span>© {new Date().getFullYear()} Ellie Seal</span>
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- Artist's email destination. -->
+			<a href={socialLinks.email.href}>{socialLinks.email.handle}</a>
+		</div>
+	</footer>
+{:else if !storefrontOpen || artistPage}
 	<footer class="artist-footer">
 		<div class="artist-footer__inner wrap">
 			<div class="artist-footer__brand">
-				<a href={resolve('/murals')} class="artist-footer__wordmark">Ellie Seal</a>
-				<p>Murals by Ellie Seal.</p>
+				<a href={resolve('/')} class="artist-footer__wordmark">Ellie Seal</a>
+				<p>Fine art & custom murals.</p>
 			</div>
 			<nav aria-label="Explore Ellie’s work">
 				<h2>Explore</h2>
+				<a href={resolve('/')}>Home</a>
+				<a href={resolve('/shop')}>Shop</a>
 				<a href={resolve('/murals')}>Murals & commissions</a>
 				<a href={resolve('/murals#contact')}>Mural enquiries ↗</a>
 			</nav>
@@ -37,11 +48,11 @@
 		<div class="artist-footer__bottom wrap">© {new Date().getFullYear()} Ellie Seal</div>
 	</footer>
 {:else}
-	{#if !page.url.pathname.startsWith('/murals')}<Newsletter />{/if}
+	<Newsletter />
 	<footer class="shop-footer">
 		<div class="wrap footer-grid">
 			<div class="footer-brand">
-				<a href={resolve('/')} class="wordmark">Seal Stuff<span>BY ELLIE SEAL</span></a>
+				<a href={resolve('/shop')} class="wordmark">Seal Stuff<span>BY ELLIE SEAL</span></a>
 				<p>Prints{hasClothing ? ' & clothing' : ' & posters'} by Ellie Seal.</p>
 				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- External hosted URL. -->
 				<a class="text-link" href={shopCopy.instagram} target="_blank" rel="noreferrer"
@@ -66,6 +77,7 @@
 			</div>
 			<div>
 				<h2>About</h2>
+				<a href={resolve('/')}>Ellie Seal home</a>
 				<a href={resolve('/about')}>Meet Ellie</a><a href={resolve('/murals')}
 					>Murals & commissions ↗</a
 				><a href={resolve('/policies')}>Privacy & shop policies</a>
@@ -80,6 +92,39 @@
 {/if}
 
 <style>
+	.home-footer {
+		border-top: 1px solid var(--line);
+		background: var(--paper);
+		color: var(--navy);
+		font-family: var(--font-sans);
+		font-size: 0.68rem;
+		line-height: 1.6;
+	}
+
+	.home-footer__inner {
+		display: flex;
+		min-height: 4.5rem;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.25rem 1.5rem;
+		padding-block: 0.75rem;
+	}
+
+	.home-footer a {
+		display: inline-flex;
+		min-height: 2.75rem;
+		align-items: center;
+		overflow-wrap: anywhere;
+		text-decoration: none;
+	}
+
+	.home-footer a:hover,
+	.home-footer a:focus-visible {
+		text-decoration: underline;
+		text-underline-offset: 4px;
+	}
+
 	.artist-footer {
 		padding: 3rem 0 1.5rem;
 		background: var(--navy);
