@@ -35,7 +35,7 @@
 	{/if}
 </svelte:head>
 <a class="skip-link" href="#main-content">Skip to content</a>
-<div class="site-shell">
+<div class="site-shell" class:home-shell={page.url.pathname === '/'}>
 	<SiteHeader />
 	{#if storefrontOpen || artistPage}
 		{@render children()}
@@ -45,3 +45,12 @@
 	<SiteFooter />
 </div>
 {#if storefrontOpen && !artistPage}<CartDrawer />{/if}
+
+<style>
+	.home-shell {
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr) auto;
+		height: 100dvh;
+		min-height: 0;
+	}
+</style>

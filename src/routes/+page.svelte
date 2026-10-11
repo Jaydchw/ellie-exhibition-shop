@@ -79,11 +79,13 @@
 
 <style>
 	.index-page {
+		min-height: 0;
 		color: var(--navy);
 	}
 
 	.artist-hero {
 		position: relative;
+		height: 100%;
 		overflow: clip;
 	}
 
@@ -91,10 +93,12 @@
 		position: relative;
 		display: grid;
 		grid-template-columns: minmax(0, 0.95fr) minmax(0, 0.8fr);
+		grid-template-rows: minmax(0, 1fr);
 		align-items: center;
 		gap: clamp(1rem, 5vw, 4rem);
-		min-height: max(39rem, calc(100svh - var(--site-header-height) - 4.5rem));
-		padding-block: clamp(2.5rem, 6vw, 5rem) 1.5rem;
+		height: 100%;
+		min-height: 0;
+		padding-block: clamp(1rem, 4dvh, 3rem) 1rem;
 	}
 
 	.hero-word {
@@ -165,7 +169,10 @@
 	.artist-hero__portrait {
 		position: relative;
 		display: grid;
-		height: min(66svh, 34rem);
+		grid-template-rows: minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr);
+		height: min(100%, 34rem);
+		min-height: 0;
 		place-items: end center;
 	}
 
@@ -175,26 +182,27 @@
 		display: block;
 		width: 190%;
 		max-width: none;
-		height: auto;
+		height: 100%;
+		object-fit: contain;
+		object-position: bottom;
 		transform: translateX(3%);
 	}
 
 	@media (max-width: 820px) {
 		.artist-hero__inner {
 			grid-template-columns: 1fr;
+			grid-template-rows: auto minmax(0, 1fr);
 			gap: 0;
-			min-height: auto;
-			padding-block: 3rem 0;
+			padding-block: clamp(1rem, 4dvh, 2.5rem) 0;
 		}
 
 		.artist-hero__copy :global(h1) {
 			max-width: none;
+			font-size: clamp(2.8rem, min(16vw, 10dvh), 4.4rem);
 		}
 
 		.artist-hero__portrait {
-			height: auto;
-			min-height: 17rem;
-			margin-top: 1rem;
+			height: 100%;
 		}
 
 		.artist-hero__portrait img {
@@ -212,10 +220,6 @@
 	}
 
 	@media (max-width: 560px) {
-		.artist-hero__inner {
-			padding-top: 2.5rem;
-		}
-
 		.artist-hero__copy :global(.section-description) {
 			margin-top: 0.5rem;
 			font-size: 1rem;
@@ -240,10 +244,6 @@
 			font-size: 0.72rem;
 		}
 
-		.artist-hero__portrait {
-			min-height: 15rem;
-		}
-
 		.artist-hero__portrait img {
 			width: 160%;
 			transform: translateX(2%);
@@ -251,6 +251,48 @@
 
 		.hero-word {
 			bottom: 6rem;
+		}
+	}
+
+	@media (max-height: 700px) {
+		.artist-hero__copy :global(h1) {
+			font-size: clamp(2.8rem, min(9vw, 12dvh), 5.5rem);
+		}
+
+		.artist-hero__copy :global(.section-description) {
+			margin-top: 0.5rem;
+		}
+
+		.destinations,
+		.socials {
+			margin-top: 1rem;
+		}
+	}
+
+	@media (max-height: 540px) {
+		.artist-hero__copy :global(h1) {
+			max-width: none;
+			font-size: clamp(2rem, 10dvh, 3.5rem);
+		}
+
+		.artist-hero__copy :global(.section-description) {
+			font-size: 0.9rem;
+		}
+
+		.destinations,
+		.socials {
+			margin-top: 0.5rem;
+		}
+	}
+
+	@media (max-width: 820px) and (max-height: 540px) {
+		.artist-hero__inner {
+			grid-template-rows: minmax(0, 1fr);
+			padding-block: 0.75rem;
+		}
+
+		.artist-hero__portrait {
+			display: none;
 		}
 	}
 </style>
