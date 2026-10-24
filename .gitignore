@@ -1,5 +1,9 @@
 node_modules
 
+# Local integration audits are not public project source.
+/shopify-native/audit/
+/native-shop-report/
+
 # Output
 .output
 .vercel

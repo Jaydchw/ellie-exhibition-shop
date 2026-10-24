@@ -4,19 +4,30 @@
 	import { setContext, untrack } from 'svelte';
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
+	import portrait from '$lib/assets/images/murals/ellie-seal-mural-artist.png';
+	import { safeJsonLd } from '$lib/seo';
+	import { siteIdentity } from '$lib/content/identity';
 	import SiteFooter from '$lib/components/site-footer.svelte';
 	import SiteHeader from '$lib/components/site-header.svelte';
 	import CartDrawer from '$lib/components/shop/cart-drawer.svelte';
-	import UnderConstruction from '$lib/components/shop/under-construction.svelte';
-	import { storefrontOpen } from '$lib/commerce/availability';
+	import PrivacySettings from '$lib/components/privacy-settings.svelte';
+	import Toasts from '$lib/components/ui/toasts.svelte';
 	import { SHOP, ShopState } from '$lib/commerce/shop.svelte';
 	let { data, children } = $props();
 	const shop = new ShopState(untrack(() => data.config));
 	setContext(SHOP, shop);
-	let artistPage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/murals'));
+	let artistPage = $derived(
+		!!data.hostedShopUrl || page.url.pathname === '/' || page.url.pathname.startsWith('/murals')
+	);
 	let shopInitialized = false;
+	let identityMarkup = $derived(
+		'<script type="application/ld+json">' +
+			safeJsonLd(siteIdentity(data.siteUrl || page.url.origin, portrait, data.hostedShopUrl)) +
+			'</' +
+			'script>'
+	);
 	$effect(() => {
-		if (storefrontOpen && !artistPage && !shopInitialized) {
+		if (!artistPage && !shopInitialized) {
 			shopInitialized = true;
 			untrack(() => void shop.init(data.products));
 		}
@@ -27,30 +38,25 @@
 	<link rel="icon" href={favicon} />
 	<meta name="theme-color" content="#f7f3ec" />
 	<meta property="og:site_name" content="Ellie Seal" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content={page.url.origin + page.url.pathname} />
-	<link rel="canonical" href={page.url.origin + page.url.pathname} />
-	{#if !artistPage && (!storefrontOpen || !data.config.live)}
-		<meta name="robots" content="noindex, nofollow" />
+	{#if page.url.pathname === '/' || page.url.pathname === '/about'}
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -- JSON-LD escapes script delimiters. -->
+		{@html identityMarkup}
 	{/if}
 </svelte:head>
 <a class="skip-link" href="#main-content">Skip to content</a>
 <div class="site-shell" class:home-shell={page.url.pathname === '/'}>
 	<SiteHeader />
-	{#if storefrontOpen || artistPage}
-		{@render children()}
-	{:else}
-		<UnderConstruction />
-	{/if}
+	{@render children()}
 	<SiteFooter />
 </div>
-{#if storefrontOpen && !artistPage}<CartDrawer />{/if}
+{#if !artistPage}<CartDrawer />{/if}
+<Toasts />
+{#if !data.hostedShopUrl}<PrivacySettings config={data.config} />{/if}
 
 <style>
 	.home-shell {
 		display: grid;
 		grid-template-rows: auto minmax(0, 1fr) auto;
-		height: 100dvh;
-		min-height: 0;
+		min-height: 100dvh;
 	}
 </style>

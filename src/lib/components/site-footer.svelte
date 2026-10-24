@@ -1,213 +1,209 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { base, resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { storefrontOpen } from '$lib/commerce/availability';
-	import { socialLinks } from '$lib/content/site';
-	import { shopCopy } from '$lib/content/shop';
+	import type { MenuLink } from '$lib/commerce/types';
+	import { openPrivacySettings, openDataSharingSettings } from '$lib/commerce/privacy';
 	import Newsletter from './shop/newsletter.svelte';
-	import { isClothing } from '$lib/commerce/presentation';
-	let hasClothing = $derived(page.data.products?.some(isClothing) ?? false);
-	let artistPage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/murals'));
+	let artistPage = $derived(
+		!!page.data.hostedShopUrl ||
+			page.url.pathname === '/' ||
+			page.url.pathname.startsWith('/murals')
+	);
+	let home = $derived(page.url.pathname === '/');
+	let links = $derived(page.data.menus.footer);
+	function menuUrl(url: string) {
+		return url.startsWith('/') ? base + url : url;
+	}
 </script>
 
-{#if page.url.pathname === '/'}
-	<footer class="home-footer">
-		<div class="home-footer__inner wrap">
+{#snippet menuItems(items: MenuLink[])}
+	{#each items as link (link.id)}
+		<li>
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- Shopify links are normalized and validated by the server; internal URLs include the configured base path. -->
+			<a href={menuUrl(link.url)}>{link.title}</a>
+			{#if link.items.length}<ul>{@render menuItems(link.items)}</ul>{/if}
+		</li>
+	{/each}
+{/snippet}
+
+{#if !artistPage}<Newsletter />{/if}
+<footer class="studio-footer" class:home-footer={home}>
+	<div class="footer-inner wrap">
+		<div class="footer-identity">
+			{#if !home}<a class="footer-wordmark" href={resolve('/')}>Ellie Seal</a>{/if}
 			<span>© {new Date().getFullYear()} Ellie Seal</span>
-			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- Artist's email destination. -->
-			<a href={socialLinks.email.href}>{socialLinks.email.handle}</a>
 		</div>
-	</footer>
-{:else if !storefrontOpen || artistPage}
-	<footer class="artist-footer">
-		<div class="artist-footer__inner wrap">
-			<div class="artist-footer__brand">
-				<a href={resolve('/')} class="artist-footer__wordmark">Ellie Seal</a>
-				<p>Fine art & custom murals.</p>
-			</div>
-			<nav aria-label="Explore Ellie’s work">
-				<h2>Explore</h2>
-				<a href={resolve('/')}>Home</a>
-				<a href={resolve('/shop')}>Shop</a>
-				<a href={resolve('/murals')}>Murals & commissions</a>
-				<a href={resolve('/murals#contact')}>Mural enquiries ↗</a>
-			</nav>
-			<nav aria-label="Find Ellie online">
-				<h2>Contact</h2>
-				{#each Object.values(socialLinks) as social (social.href)}
-					<!-- eslint-disable svelte/no-navigation-without-resolve -- Artist's external social and email links. -->
-					<a
-						href={social.href}
-						target={social.label === 'Email' ? undefined : '_blank'}
-						rel={social.label === 'Email' ? undefined : 'noreferrer'}>{social.label} ↗</a
-					>
-					<!-- eslint-enable svelte/no-navigation-without-resolve -->
-				{/each}
-			</nav>
-		</div>
-		<div class="artist-footer__bottom wrap">© {new Date().getFullYear()} Ellie Seal</div>
-	</footer>
-{:else}
-	<Newsletter />
-	<footer class="shop-footer">
-		<div class="wrap footer-grid">
-			<div class="footer-brand">
-				<a href={resolve('/shop')} class="wordmark">Seal Stuff<span>BY ELLIE SEAL</span></a>
-				<p>Prints{hasClothing ? ' & clothing' : ' & posters'} by Ellie Seal.</p>
-				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- External hosted URL. -->
-				<a class="text-link" href={shopCopy.instagram} target="_blank" rel="noreferrer"
-					>Instagram ↗</a
-				>
-			</div>
-			<div>
-				<h2>Shop</h2>
-				<a href={resolve('/shop')}>All products</a><a href={resolve('/shop?finish=Poster')}
-					>Posters</a
-				><a href={resolve('/shop?finish=frame')}>Framed prints</a>{#if hasClothing}<a
-						href={resolve('/shop?category=clothing')}>Clothing</a
-					>{/if}<a href={resolve('/saved')}>Saved products</a>
-			</div>
-			<div>
-				<h2>Help</h2>
-				<a href={resolve('/help')}>Delivery & returns</a><a href={resolve('/help#sizes')}
-					>Size & finish guide</a
-				><a href={resolve('/account')}>Your account & orders</a><a href={'mailto:' + shopCopy.email}
-					>Get in touch</a
-				>
-			</div>
-			<div>
-				<h2>About</h2>
-				<a href={resolve('/')}>Ellie Seal home</a>
-				<a href={resolve('/about')}>Meet Ellie</a><a href={resolve('/murals')}
-					>Murals & commissions ↗</a
-				><a href={resolve('/policies')}>Privacy & shop policies</a>
-			</div>
-		</div>
-		<div class="wrap footer-bottom">
-			<span>© {new Date().getFullYear()} Seal Stuff · Art by Ellie Seal</span><span
-				>International delivery. <span class="footer-currency">GBP £</span></span
-			>
-		</div>
-	</footer>
-{/if}
+		{#if links.length}
+			<nav aria-label="Footer"><ul>{@render menuItems(links)}</ul></nav>
+		{/if}
+		<a class="footer-contact" href={resolve('/contact')}>Get in touch ↗</a>
+	</div>
+	<div class="footer-bottom wrap">
+		<nav class="privacy-links" aria-label="Privacy">
+			<a href={resolve('/policies/privacy-policy')}>Privacy policy</a>
+			{#if page.data.hostedShopUrl}
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- Validated native Shopify origin. -->
+				<a href={page.data.hostedShopUrl + 'pages/data-sharing-opt-out'}>Your privacy choices</a>
+			{:else}
+				<button type="button" onclick={openPrivacySettings}>Cookie preferences</button>
+				<button type="button" onclick={openDataSharingSettings}>Your privacy choices</button>
+			{/if}
+		</nav>
+		<p class="footer-credit">
+			Created by <a href="https://jaydchw.com">Jayden Holdsworth <span>· jaydchw.com</span></a>
+		</p>
+	</div>
+</footer>
 
 <style>
-	.home-footer {
+	.studio-footer {
 		border-top: 1px solid var(--line);
 		background: var(--paper);
 		color: var(--navy);
 		font-family: var(--font-sans);
-		font-size: 0.68rem;
-		line-height: 1.6;
 	}
-
-	.home-footer__inner {
+	.footer-inner {
 		display: flex;
-		min-height: 4.5rem;
-		align-items: center;
 		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: 0.25rem 1.5rem;
-		padding-block: 0.75rem;
+		align-items: flex-start;
+		gap: 2rem 3rem;
+		padding-block: 3rem;
 	}
-
-	.home-footer a {
-		display: inline-flex;
-		min-height: 2.75rem;
-		align-items: center;
-		overflow-wrap: anywhere;
-		text-decoration: none;
-	}
-
-	.home-footer a:hover,
-	.home-footer a:focus-visible {
-		text-decoration: underline;
-		text-underline-offset: 4px;
-	}
-
-	.artist-footer {
-		padding: 3rem 0 1.5rem;
-		background: var(--navy);
-		color: var(--paper);
-	}
-
-	.artist-footer__inner {
+	.footer-identity {
 		display: grid;
-		grid-template-columns: 1.5fr 1fr 0.75fr;
-		gap: 3rem;
+		gap: 1.25rem;
 	}
-
-	.artist-footer__wordmark {
-		font-size: 2.5rem;
+	.footer-wordmark {
+		font-family: var(--font-serif);
+		font-size: 2.4rem;
 		font-weight: 600;
-		letter-spacing: -0.075em;
 		line-height: 1;
+		letter-spacing: -0.07em;
 		text-decoration: none;
+		white-space: nowrap;
 	}
-
-	.artist-footer__brand p {
-		max-width: 23rem;
-		margin: 1.25rem 0 0;
-		font-family: var(--font-sans);
-		font-size: 0.75rem;
-		line-height: 1.8;
-		color: var(--paper);
+	.footer-identity span {
+		font-size: 0.65rem;
+		color: var(--muted);
 	}
-
-	.artist-footer h2 {
-		margin: 0 0 1.25rem;
-		font-family: var(--font-sans);
-		font-size: 0.6rem;
-		font-weight: 500;
-		line-height: 1.5;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		color: var(--sage);
+	nav {
+		max-width: 40rem;
 	}
-
-	.artist-footer nav a {
-		display: block;
-		width: fit-content;
-		padding-block: 0.6rem;
-		font-family: var(--font-sans);
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem 1.75rem;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+	ul ul {
+		display: grid;
+		gap: 0;
+		padding-block: 0.25rem;
+	}
+	a:not(.footer-wordmark) {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
 		font-size: 0.72rem;
-		line-height: 1.6;
+		line-height: 1.5;
 		text-decoration: none;
 	}
-
-	.artist-footer nav a:hover,
-	.artist-footer nav a:focus-visible {
+	a:hover,
+	a:focus-visible {
 		text-decoration: underline;
 		text-underline-offset: 5px;
 	}
-
-	.artist-footer__bottom {
-		margin-top: 2rem;
-		padding-top: 1.5rem;
-		border-top: 1px solid #ffffff25;
+	.footer-contact {
+		white-space: nowrap;
+	}
+	.footer-bottom {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem 2rem;
+		padding-block: 0.75rem;
+		border-top: 1px solid var(--line);
+	}
+	.privacy-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 1.25rem;
+	}
+	.privacy-links a,
+	.privacy-links button,
+	.footer-credit,
+	.footer-credit a {
 		font-family: var(--font-sans);
-		font-size: 0.6rem;
-		opacity: 0.65;
+		font-size: 0.65rem;
+		color: var(--muted);
 	}
-
+	.privacy-links button {
+		min-height: 44px;
+		padding: 0;
+		border: 0;
+		background: none;
+		cursor: pointer;
+	}
+	.privacy-links button:hover {
+		text-decoration: underline;
+		text-underline-offset: 5px;
+	}
+	.footer-credit {
+		margin: 0;
+		white-space: nowrap;
+	}
+	.footer-credit a {
+		display: inline;
+		text-underline-offset: 4px;
+	}
+	.footer-credit span {
+		white-space: nowrap;
+	}
+	.home-footer .footer-inner {
+		align-items: center;
+		padding-block: 1rem;
+	}
 	@media (max-width: 900px) {
-		.artist-footer__inner {
-			grid-template-columns: 1fr 1fr;
-			gap: 2.5rem;
+		.footer-bottom {
+			flex-wrap: wrap;
 		}
-
-		.artist-footer__brand {
-			grid-column: 1 / -1;
+		.footer-inner {
+			flex-wrap: wrap;
+			gap: 1.5rem 2rem;
+		}
+		nav {
+			flex: 1;
+		}
+		.footer-contact {
+			margin-left: auto;
 		}
 	}
-
-	@media (max-width: 600px) {
-		.artist-footer {
-			padding-top: 3rem;
+	@media (max-width: 560px) {
+		.footer-inner {
+			padding-block: 2rem;
+			gap: 1rem;
 		}
-
-		.artist-footer__inner {
-			gap: 2rem 1rem;
+		.footer-identity {
+			flex-basis: 100%;
+			gap: 0.75rem;
+		}
+		nav {
+			flex-basis: 100%;
+		}
+		ul {
+			gap: 0 1.35rem;
+		}
+		.footer-contact {
+			margin-left: 0;
+		}
+		.footer-bottom {
+			padding-block: 0.5rem 1rem;
+			gap: 0.25rem;
+		}
+		.footer-credit {
+			white-space: normal;
 		}
 	}
 </style>

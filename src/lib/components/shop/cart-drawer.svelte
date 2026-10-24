@@ -4,7 +4,7 @@
 	import { flip } from 'svelte/animate';
 	import { useShop } from '$lib/commerce/shop.svelte';
 	import { money } from '$lib/commerce/types';
-	import { isOnSale } from '$lib/commerce/presentation';
+	import { isOnSale, isOriginal } from '$lib/commerce/presentation';
 	import Modal from './modal.svelte';
 	import Icon from './icon.svelte';
 	import QuantityPicker from './quantity-picker.svelte';
@@ -48,14 +48,22 @@
 								href={resolve('/shop/[handle]', { handle: line.handle })}
 								onclick={() => (shop.open = false)}>{line.title}</a
 							>
-							<p class="small muted">{line.variant.title}</p>
+							<p class="small muted">
+								{isOriginal(line)
+									? 'Original artwork'
+									: line.variant.title === 'Default Title'
+										? ''
+										: line.variant.title}
+							</p>
 							<p class="small" class:sale-price={isOnSale(line.variant)}>
 								{money(line.variant.price)}{#if isOnSale(line.variant)}
 									<del>{money(line.variant.compareAtPrice!)}</del>{/if}
 							</p>
 							<QuantityPicker
 								value={line.quantity}
-								min={0}
+								min={line.variant.quantityRule?.minimum ?? 1}
+								step={line.variant.quantityRule?.increment ?? 1}
+								max={shop.quantityMaximum(line.id)}
 								disabled={shop.busy}
 								label={`Quantity of ${line.title}`}
 								onchange={(n) => shop.quantity(line.id, n)}

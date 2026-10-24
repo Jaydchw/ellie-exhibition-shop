@@ -1,8 +1,20 @@
 {
-	"updated": "2026-10-06",
+	"updated": "2026-10-13",
 	"readyForLaunch": false,
 	"ordersOrPaymentsMade": false,
-	"requestedSizes": ["A4", "A3", "A2"],
+	"latestReview": {
+		"date": "2026-10-24",
+		"scope": "Repository review only; historical account observations below remain dated 2026-10-13",
+		"liveShopifyVerified": false,
+		"liveProdigiVerified": false,
+		"blockedReason": "Browser controls unavailable; direct Shopify requests failed DNS resolution",
+		"recordedCompletedPlacements": 22,
+		"recordedPendingPlacements": 38,
+		"totalExpectedPrintVariants": 60,
+		"checkoutIssueReported": "Shopify-hosted checkout shows newsletter/password landing page; review Online Store access and account launch requirements",
+		"ordersOrPaymentsMade": false
+	},
+	"requestedSizes": ["A4", "A3"],
 	"requestedFinishes": ["Poster", "Fine art print", "Black frame", "Natural frame", "White frame"],
 	"supplierFamilies": {
 		"Poster": "GLOBAL-BLP (170gsm poster paper)",
@@ -12,51 +24,107 @@
 	"products": {
 		"it-feels-like-a-cosmic-shard": {
 			"prodigiId": "6275010",
-			"automaticFulfilmentEnabled": false,
+			"automaticFulfilmentEnabled": true,
 			"image": "art-1.png",
-			"completedPlacements": ["A4 / Fine art print", "A3 / Fine art print"],
-			"warning": "The other 13 variants have temporary copied GLOBAL-FAP-A4 product/image assignments. These are NOT correct fulfilment mappings. All 15 variants are inactive. Clearing their copied image placements is awaiting user confirmation; rebuilding frames directly succeeds whereas changing copied paper/image configurations to frames returned Failed to update (404)."
+			"completedPlacements": [
+				"A3 / Black frame",
+				"A3 / Fine art print",
+				"A3 / Natural frame",
+				"A3 / Poster",
+				"A3 / White frame",
+				"A4 / Black frame",
+				"A4 / Fine art print",
+				"A4 / Natural frame",
+				"A4 / Poster",
+				"A4 / White frame"
+			],
+			"warning": "All ten A4/A3 variants mapped to the correct product, colour and art-1.png; saved and enabled. A3 landscape Fit 210.21%, zero added border, Poor quality. A4 landscape Fit 148.64%, zero added border, Acceptable quality. All five obsolete A2 variants disabled in Prodigi. All Shopify products remain Draft.",
+			"enabledVariantsVerified": [
+				"A3 / Black frame",
+				"A3 / Fine art print",
+				"A3 / Natural frame",
+				"A3 / Poster",
+				"A3 / White frame",
+				"A4 / Black frame",
+				"A4 / Fine art print",
+				"A4 / Natural frame",
+				"A4 / Poster",
+				"A4 / White frame"
+			]
 		},
 		"it-feels-like-love-is-the-key": {
 			"prodigiId": "6275011",
 			"image": "art-2.png",
-			"completedPlacements": ["A2 / Black frame", "A2 / Natural frame"],
-			"productAssignedButImageStillRequired": {
-				"A2 / Fine art print": "GLOBAL-FAP-A2",
-				"A2 / Poster": "GLOBAL-BLP-A2",
-				"A2 / White frame": "GLOBAL-CFP-A2, White",
-				"A3 / Black frame": "GLOBAL-CFP-A3, Black"
-			},
-			"unconfiguredVariants": 9
+			"completedPlacements": [
+				"A3 / Black frame",
+				"A3 / Fine art print",
+				"A3 / Natural frame",
+				"A3 / Poster",
+				"A3 / White frame",
+				"A4 / Black frame",
+				"A4 / Fine art print",
+				"A4 / Natural frame",
+				"A4 / Poster",
+				"A4 / White frame"
+			],
+			"unconfiguredVariants": 0,
+			"syncVerified": "Only 10 A4/A3 variants now displayed in Prodigi; A2 removed by sync",
+			"warning": "All ten variants saved and verified automatic: correct size, colour, art-2, landscape Fit, zero offsets and border. A3 Poor; A4 Acceptable."
 		},
 		"it-feels-like-good-and-evil": {
 			"prodigiId": "6275012",
 			"image": "art-3.png",
-			"unconfiguredVariants": 15
+			"unconfiguredVariants": 8,
+			"completedPlacements": ["A3 / Black frame", "A3 / Fine art print"]
 		},
 		"feels-like-a-whirl-pool": {
 			"prodigiId": "6275013",
 			"image": "art-4.png",
-			"unconfiguredVariants": 15
+			"unconfiguredVariants": 10
 		},
 		"it-feels-like-it-is-consuming-me": {
 			"prodigiId": "6275014",
 			"image": "art-5.png",
-			"unconfiguredVariants": 15
+			"unconfiguredVariants": 10
 		},
 		"it-feels-like-a-ball-of-light": {
 			"prodigiId": "6275015",
 			"image": "art-6.png",
-			"unconfiguredVariants": 15
+			"unconfiguredVariants": 10
 		}
 	},
 	"remainingAccountWork": [
 		"Complete all variant product and image mappings, then verify size, frame colour, artwork and landscape fit for every variant",
 		"Shopify identity/address/payment verification",
-		"Prodigi payment method (user entry; no payment authorized)",
 		"Shipping zones/rates, Markets, destination coverage and exact margins",
 		"Refund, shipping and terms policies",
 		"Account, newsletter and checkout verification without placing paid orders",
 		"Publish approved catalogue to Headless and deploy production after setup is complete"
-	]
+	],
+	"shopifyA2Removed": "All six Shopify products saved A4/A3 only, ten variants each. Prodigi connected listings now confirms ten of ten for all six; Good and Evil detail explicitly shows A3/A4 only.",
+	"accountChecks": {
+		"shopifyPayments": "Step 4/4 awaits identity and residential-address documents; not submitted",
+		"prodigiBilling": "Billing details and primary payment method present; no charge made",
+		"shopifyAccounts": "Sign-in links enabled, customer account URL present",
+		"prodigiPreferences": "Two-hour order edit window saved; order/shipment notifications and attention notifications enabled",
+		"shopifyShipping": "UK only active; Standard GBP4.99, free above GBP50, 3-5 business days; Express GBP6.99, 1-2 business days. Existing rates require supplier cost and production-time review.",
+		"shopifyPayPal": "Setup incomplete"
+	},
+	"requestedDestinations": "Worldwide wherever Prodigi supports delivery; confirmed by owner 2026-10-13",
+	"supplierQuotes": [
+		{
+			"itemExTax": 32,
+			"observed": "2026-10-13",
+			"tax": 8.55,
+			"currency": "GBP",
+			"sku": "GLOBAL-CFP-A3",
+			"note": "Single item; Budget and Express same price in observed quote. Multi-item and destination costs vary.",
+			"shippingExTax": 10.75,
+			"destination": "GB",
+			"totalIncTax": 51.3,
+			"service": "Standard",
+			"colour": "Black"
+		}
+	],
+	"supplierPricingData": "15 official pricing CSVs downloaded 2026-10-13; extracted rates in setup/prodigi-supplier-rates.json. 152 destinations listed, A3 frames absent for PM. Worldwide rates not yet configured."
 }

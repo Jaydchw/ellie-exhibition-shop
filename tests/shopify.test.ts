@@ -50,6 +50,15 @@ const reply = (data: unknown) =>
 	});
 afterEach(() => vi.unstubAllGlobals());
 describe('Storefront boundary', () => {
+	it('keeps browser cart reads on the same origin so Shopify consent accompanies checkout', async () => {
+		const fetcher = vi.fn().mockResolvedValue(reply({ cart: rawCart }));
+		vi.stubGlobal('window', { Shopify: { routes: { apiProxyPrefix: '/__shopify' } } });
+		vi.stubGlobal('document', {});
+		vi.stubGlobal('fetch', fetcher);
+		await readCart(config, rawCart.id);
+		expect(fetcher.mock.calls[0][0]).toBe('/__shopify/api/2026-07/graphql.json');
+		expect(fetcher.mock.calls[0][1].credentials).toBe('same-origin');
+	});
 	it('sends the public token to the configured version and preserves decimal money', async () => {
 		const fetcher = vi.fn().mockResolvedValue(reply({ cart: rawCart }));
 		vi.stubGlobal('fetch', fetcher);
@@ -97,6 +106,94 @@ describe('Storefront boundary', () => {
 		await expect(
 			mutateCart(config, 'add', rawCart.id, [{ merchandiseId: variant.id, quantity: 2 }])
 		).rejects.toThrow('sold out');
+	});
+	it('uses partial cart data after an optional inventory permission error without replaying a mutation', async () => {
+		const restricted = { ...config };
+		const fetcher = vi
+			.fn()
+			.mockResolvedValueOnce(
+				new Response(
+					JSON.stringify({
+						data: { result: { cart: rawCart, userErrors: [] } },
+						errors: [
+							{
+								message: 'Access denied for quantityAvailable field.',
+								path: ['result', 'cart', 'lines', 'nodes', 0, 'merchandise', 'quantityAvailable'],
+								extensions: { code: 'ACCESS_DENIED' }
+							}
+						]
+					})
+				)
+			)
+			.mockResolvedValueOnce(reply({ cart: rawCart }));
+		vi.stubGlobal('fetch', fetcher);
+		const cart = await mutateCart(restricted, 'add', rawCart.id, [
+			{ merchandiseId: variant.id, quantity: 1 }
+		]);
+		expect(cart.lines[0].quantity).toBe(1);
+		expect(fetcher).toHaveBeenCalledTimes(1);
+		await readCart(restricted, cart.id);
+		expect(JSON.parse(fetcher.mock.calls[0][1].body).query).toContain('quantityAvailable');
+		expect(JSON.parse(fetcher.mock.calls[1][1].body).query).not.toContain('quantityAvailable');
+	});
+	it('retries an inventory-restricted read once without the optional field when no usable data is returned', async () => {
+		const fetcher = vi
+			.fn()
+			.mockResolvedValueOnce(
+				new Response(
+					JSON.stringify({
+						errors: [
+							{
+								message: 'Access denied for quantityAvailable field.',
+								extensions: { code: 'ACCESS_DENIED' }
+							}
+						]
+					})
+				)
+			)
+			.mockResolvedValueOnce(reply({ cart: rawCart }));
+		vi.stubGlobal('fetch', fetcher);
+		expect(await readCart({ ...config }, rawCart.id)).not.toBeNull();
+		expect(fetcher).toHaveBeenCalledTimes(2);
+		expect(JSON.parse(fetcher.mock.calls[1][1].body).query).not.toContain('quantityAvailable');
+	});
+	it('never replays a cart mutation when an inventory error has no usable result', async () => {
+		const fetcher = vi.fn().mockResolvedValue(
+			new Response(
+				JSON.stringify({
+					errors: [
+						{
+							message: 'Access denied for quantityAvailable field.',
+							extensions: { code: 'ACCESS_DENIED' }
+						}
+					]
+				})
+			)
+		);
+		vi.stubGlobal('fetch', fetcher);
+		await expect(
+			mutateCart({ ...config }, 'add', rawCart.id, [{ merchandiseId: variant.id, quantity: 1 }])
+		).rejects.toThrow('shop');
+		expect(fetcher).toHaveBeenCalledTimes(1);
+	});
+	it('does not suppress other GraphQL errors alongside an inventory permission error', async () => {
+		const fetcher = vi.fn().mockResolvedValue(
+			new Response(
+				JSON.stringify({
+					data: { cart: rawCart },
+					errors: [
+						{
+							message: 'Access denied for quantityAvailable field.',
+							extensions: { code: 'ACCESS_DENIED' }
+						},
+						{ message: 'Cart unavailable' }
+					]
+				})
+			)
+		);
+		vi.stubGlobal('fetch', fetcher);
+		await expect(readCart({ ...config }, rawCart.id)).rejects.toThrow('shop');
+		expect(fetcher).toHaveBeenCalledTimes(1);
 	});
 	it.each(['create', 'add', 'update', 'remove', 'discount'] as const)(
 		'uses the %s cart mutation and returns Shopify totals',
@@ -167,5 +264,45 @@ describe('Storefront boundary', () => {
 		expect(products[0].variants).toHaveLength(2);
 		expect(JSON.parse(fetcher.mock.calls[1][1].body).variables.after).toBe('v1');
 		expect(JSON.parse(fetcher.mock.calls[2][1].body).variables.after).toBe('p1');
+	});
+	it('loads merchant care instructions and inventory constraints with the product', async () => {
+		const fetcher = vi.fn().mockResolvedValue(
+			reply({
+				products: {
+					nodes: [
+						{
+							id: 'original-1',
+							handle: 'original-1',
+							title: 'Study',
+							description: '',
+							productType: 'Original',
+							tags: [],
+							options: [],
+							images: { nodes: [] },
+							careInstructions: { value: 'Clean the varnished surface with a soft dry cloth.' },
+							variants: {
+								nodes: [
+									{
+										...variant,
+										quantityAvailable: 1,
+										currentlyNotInStock: false,
+										quantityRule: { minimum: 1, maximum: null, increment: 1 }
+									}
+								],
+								pageInfo: { hasNextPage: false, endCursor: null }
+							}
+						}
+					],
+					pageInfo: { hasNextPage: false, endCursor: null }
+				}
+			})
+		);
+		const [product] = await getProducts({ ...config }, fetcher);
+		expect(product.careInstructions).toBe('Clean the varnished surface with a soft dry cloth.');
+		expect(product.variants[0].quantityAvailable).toBe(1);
+		expect(product.variants[0].quantityRule?.increment).toBe(1);
+		const query = JSON.parse(fetcher.mock.calls[0][1].body).query;
+		expect(query).toContain('metafield(namespace: "artwork", key: "care_instructions")');
+		expect(query).toContain('quantityAvailable');
 	});
 });

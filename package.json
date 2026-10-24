@@ -4,8 +4,8 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "node scripts/run-site.mjs dev",
-		"build": "node scripts/run-site.mjs build",
+		"dev": "vite dev",
+		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -14,6 +14,7 @@
 		"format": "prettier --write .",
 		"test": "vitest run --config vitest.config.ts",
 		"catalog:export": "node scripts/export-shopify.mjs",
+		"shopify:setup": "node scripts/setup-storefront.mjs",
 		"preview:cloudflare": "wrangler pages dev .svelte-kit/cloudflare"
 	},
 	"devDependencies": {

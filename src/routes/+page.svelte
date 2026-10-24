@@ -10,22 +10,25 @@
 	import SectionHeading from '$lib/components/ui/section-heading.svelte';
 	import portrait from '$lib/assets/images/murals/ellie-seal-mural-artist.png';
 	import { socialLinks } from '$lib/content/site';
+	import Seo from '$lib/components/seo.svelte';
+	import ImageViewer from '$lib/components/ui/image-viewer.svelte';
+	let { data } = $props();
+	let content = $derived(data.content);
+	let zoom = $state(false);
 
 	const socials = [
 		{ ...socialLinks.instagram, icon: InstagramLogo },
 		{ ...socialLinks.facebook, icon: FacebookLogo },
 		{ ...socialLinks.email, icon: EnvelopeSimple }
 	];
-	const description =
-		'Fine art and custom murals by Ellie Seal. Visit the Seal Stuff shop or get in touch.';
+	let description = $derived(content.homeText);
 </script>
 
-<svelte:head>
-	<title>Ellie Seal — Fine Art & Murals</title>
-	<meta name="description" content={description} />
-	<meta property="og:title" content="Ellie Seal — Fine Art & Murals" />
-	<meta property="og:description" content={description} />
-</svelte:head>
+<Seo
+	title={`${content.homeTitle} - Original art, prints & murals in Hull`}
+	description={`${description} Original paintings, art prints and custom mural commissions in Hull.`}
+	image={content.homeImage || portrait}
+/>
 
 <main id="main-content" class="index-page">
 	<section class="artist-hero" aria-labelledby="artist-title">
@@ -34,8 +37,8 @@
 		<div class="artist-hero__inner wrap">
 			<div class="artist-hero__copy">
 				<SectionHeading
-					title="Ellie Seal"
-					description="Fine artist & mural painter."
+					title={content.homeTitle}
+					description={content.homeText}
 					level="h1"
 					headingId="artist-title"
 				/>
@@ -64,18 +67,29 @@
 					{/each}
 				</nav>
 			</div>
-			<div class="artist-hero__portrait">
+			<button
+				type="button"
+				class="artist-hero__portrait"
+				class:uploaded-image={!!content.homeImage}
+				aria-label="Enlarge artist image"
+				onclick={() => (zoom = true)}
+			>
 				<img
-					src={portrait}
-					alt="Ellie Seal holding a paintbrush"
-					width="2400"
-					height="1351"
+					src={content.homeImage?.url ?? portrait}
+					alt={content.homeImage
+						? (content.homeImage.altText ?? content.homeTitle)
+						: 'Ellie Seal holding a paintbrush'}
 					fetchpriority="high"
 				/>
-			</div>
+			</button>
 		</div>
 	</section>
 </main>
+<ImageViewer
+	bind:open={zoom}
+	src={content.homeImage?.url ?? portrait}
+	alt={content.homeImage?.altText ?? 'Ellie Seal holding a paintbrush'}
+/>
 
 <style>
 	.index-page {
@@ -85,7 +99,7 @@
 
 	.artist-hero {
 		position: relative;
-		height: 100%;
+		min-height: min(42rem, calc(100dvh - 10rem));
 		overflow: clip;
 	}
 
@@ -96,8 +110,7 @@
 		grid-template-rows: minmax(0, 1fr);
 		align-items: center;
 		gap: clamp(1rem, 5vw, 4rem);
-		height: 100%;
-		min-height: 0;
+		min-height: inherit;
 		padding-block: clamp(1rem, 4dvh, 3rem) 1rem;
 	}
 
@@ -123,12 +136,15 @@
 	}
 
 	.artist-hero__copy :global(h1) {
-		max-width: 4ch;
+		max-width: 10ch;
+		overflow-wrap: anywhere;
 		text-wrap: balance;
 	}
 
 	.artist-hero__copy :global(.section-description) {
 		margin-top: 1rem;
+		max-width: 29rem;
+		white-space: pre-line;
 	}
 
 	.destinations {
@@ -167,11 +183,15 @@
 	}
 
 	.artist-hero__portrait {
+		border: 0;
+		padding: 0;
+		background: transparent;
+		cursor: zoom-in;
 		position: relative;
 		display: grid;
 		grid-template-rows: minmax(0, 1fr);
 		grid-template-columns: minmax(0, 1fr);
-		height: min(100%, 34rem);
+		height: clamp(20rem, 55vh, 34rem);
 		min-height: 0;
 		place-items: end center;
 	}
@@ -188,6 +208,20 @@
 		transform: translateX(3%);
 	}
 
+	.artist-hero__portrait.uploaded-image {
+		align-self: stretch;
+		align-items: center;
+		padding-block: 2rem;
+	}
+
+	.artist-hero__portrait.uploaded-image img {
+		width: 100%;
+		height: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		transform: none;
+	}
+
 	@media (max-width: 820px) {
 		.artist-hero__inner {
 			grid-template-columns: 1fr;
@@ -202,7 +236,7 @@
 		}
 
 		.artist-hero__portrait {
-			height: 100%;
+			height: min(46vh, 25rem);
 		}
 
 		.artist-hero__portrait img {

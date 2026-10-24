@@ -50,7 +50,7 @@
 					</div>
 					<label class="consent"
 						><input type="checkbox" required /> Email me new products and offers. Unsubscribe
-						anytime. <a href={resolve('/policies')}>Privacy</a></label
+						anytime. <a href={resolve('/policies/privacy-policy')}>Privacy</a></label
 					>
 					{#if error}<p class="error-message" role="alert">{error}</p>{/if}
 				</form>

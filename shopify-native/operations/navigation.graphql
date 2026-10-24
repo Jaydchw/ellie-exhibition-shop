@@ -1,0 +1,7 @@
+mutation NativeShopNavigation($mainItems:[MenuItemUpdateInput!]!,$footerItems:[MenuItemUpdateInput!]!,$contact:PageUpdateInput!) {
+ main:menuUpdate(id:"gid://shopify/Menu/367326364039",title:"Main menu",items:$mainItems) { menu { id handle } userErrors { field message } }
+ footer:menuUpdate(id:"gid://shopify/Menu/367326429575",title:"Footer menu",items:$footerItems) { menu { id handle } userErrors { field message } }
+ contact:pageUpdate(id:"gid://shopify/Page/763042234759",page:$contact) { page { id handle } userErrors { field message } }
+ prints:publishablePublish(id:"gid://shopify/Collection/755295420807",input:[{publicationId:"gid://shopify/Publication/392943174023"}]) { userErrors { field message } }
+ originals:publishablePublish(id:"gid://shopify/Collection/755295453575",input:[{publicationId:"gid://shopify/Publication/392943174023"}]) { userErrors { field message } }
+}

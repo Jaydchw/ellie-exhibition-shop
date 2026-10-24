@@ -1,10 +1,10 @@
 {
-	"sizes": ["A4", "A3", "A2"],
+	"sizes": ["A4", "A3"],
 	"retailPrices": {
-		"Poster": [35, 49, 69],
-		"Fine art print": [49, 75, 110],
-		"Black frame": [99, 149, 219],
-		"Natural frame": [99, 149, 219],
-		"White frame": [99, 149, 219]
+		"Poster": [35, 49],
+		"Fine art print": [49, 75],
+		"Black frame": [99, 149],
+		"Natural frame": [99, 149],
+		"White frame": [99, 149]
 	}
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Seo from '$lib/components/seo.svelte';
 	import { resolve } from '$app/paths';
 	import { useShop } from '$lib/commerce/shop.svelte';
 	import ProductCard from '$lib/components/shop/product-card.svelte';
@@ -8,9 +9,7 @@
 	let products = $derived(data.products.filter((p) => shop.saved.includes(p.handle)));
 </script>
 
-<svelte:head
-	><title>Saved products — Seal Stuff</title><meta name="robots" content="noindex" /></svelte:head
->
+<Seo title="Saved artwork | Seal Stuff" description="Your saved artwork on this device." noindex />
 <main id="main-content" class="shop-page wrap">
 	<section class="page-intro">
 		<h1>Saved products</h1>

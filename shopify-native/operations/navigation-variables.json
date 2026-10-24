@@ -1,0 +1,68 @@
+{
+  "mainItems": [
+    {
+      "title": "Shop",
+      "type": "FRONTPAGE"
+    },
+    {
+      "title": "Prints",
+      "type": "COLLECTION",
+      "resourceId": "gid://shopify/Collection/755295420807"
+    },
+    {
+      "title": "Originals",
+      "type": "COLLECTION",
+      "resourceId": "gid://shopify/Collection/755295453575"
+    },
+    {
+      "title": "Artist website",
+      "type": "HTTP",
+      "url": "https://ellieseal.co.uk"
+    },
+    {
+      "title": "Murals",
+      "type": "HTTP",
+      "url": "https://ellieseal.co.uk/murals"
+    },
+    {
+      "title": "Contact",
+      "type": "PAGE",
+      "resourceId": "gid://shopify/Page/763042234759"
+    }
+  ],
+  "footerItems": [
+    {
+      "title": "Contact Ellie",
+      "type": "PAGE",
+      "resourceId": "gid://shopify/Page/763042234759"
+    },
+    {
+      "title": "About Ellie",
+      "type": "HTTP",
+      "url": "https://ellieseal.co.uk/about"
+    },
+    {
+      "title": "Instagram",
+      "type": "HTTP",
+      "url": "https://www.instagram.com/sealstuff_/"
+    },
+    {
+      "title": "Privacy policy",
+      "type": "SHOP_POLICY",
+      "resourceId": "gid://shopify/ShopPolicy/69526749575"
+    },
+    {
+      "title": "Your Privacy Choices",
+      "type": "PAGE",
+      "resourceId": "gid://shopify/Page/764182528391"
+    },
+    {
+      "title": "Created by Jayden Holdsworth",
+      "type": "HTTP",
+      "url": "https://jaydchw.com"
+    }
+  ],
+  "contact": {
+    "body": "<p>For questions about an artwork, a print or your order, email <a href=\"mailto:ellieseal21@gmail.com\">ellieseal21@gmail.com</a>. If you have already ordered, include your order number.</p><p>Find Ellie on <a href=\"https://www.instagram.com/sealstuff_/\" target=\"_blank\" rel=\"noopener\">Instagram @sealstuff_</a>.</p><p>Interested in a mural or commission? <a href=\"https://ellieseal.co.uk/murals\">See Ellie’s mural work</a> or <a href=\"https://ellieseal.co.uk\">visit the artist website</a>.</p>"
+  }
+}

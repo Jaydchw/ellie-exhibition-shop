@@ -1,84 +1,88 @@
 <script lang="ts">
-	import { useShop } from '$lib/commerce/shop.svelte';
-	import { shopCopy } from '$lib/content/shop';
-	const shop = useShop();
+	import { resolve } from '$app/paths';
+	import Seo from '$lib/components/seo.svelte';
+	import { openPrivacySettings, openDataSharingSettings } from '$lib/commerce/privacy';
+	let { data } = $props();
 </script>
 
-<svelte:head><title>Privacy & shop policies — Seal Stuff</title></svelte:head>
+<Seo
+	title="Shop policies | Seal Stuff"
+	description="Privacy, delivery, returns and terms for shopping with Ellie Seal."
+	noindex={data.policies.length === 0}
+/>
 <main id="main-content" class="shop-page wrap">
-	<section class="page-intro">
+	<section class="policy-index">
 		<h1>Shop policies</h1>
+		{#if data.policies.length}
+			<nav aria-label="Shop policies">
+				{#each data.policies as policy (policy.handle)}
+					<a href={resolve('/policies/[handle]', { handle: policy.handle })}>
+						{policy.title}<span aria-hidden="true">↗</span>
+					</a>
+				{/each}
+			</nav>
+		{:else}
+			<p>
+				Shop policies are not available yet. <a href={resolve('/help#contact')}>Contact Ellie</a>.
+			</p>
+		{/if}
+		<div class="privacy-settings">
+			<h2>Your privacy choices</h2>
+			<button type="button" onclick={openPrivacySettings}>Cookie preferences</button>
+			<button type="button" onclick={openDataSharingSettings}>Data sharing preferences</button>
+		</div>
 	</section>
-	<div class="policy-content">
-		<section>
-			<h2>Shop policies</h2>
-			{#if shop.config.live}<p>
-					Our current delivery, refund, privacy and terms policies are published on our Shopify
-					store and are available during checkout.
-				</p>
-				<ul>
-					<li>
-						<a href={`https://${shop.config.domain}/policies/refund-policy`}>Returns & refunds</a>
-					</li>
-					<li>
-						<a href={`https://${shop.config.domain}/policies/shipping-policy`}>Shipping policy</a>
-					</li>
-					<li>
-						<a href={`https://${shop.config.domain}/policies/privacy-policy`}>Privacy policy</a>
-					</li>
-					<li>
-						<a href={`https://${shop.config.domain}/policies/terms-of-service`}>Terms of service</a>
-					</li>
-				</ul>{:else}<p>
-					For delivery, returns or privacy questions, email <a href={'mailto:' + shopCopy.email}
-						>{shopCopy.email}</a
-					>.
-				</p>{/if}
-		</section>
-		<section>
-			<h2>Browser storage</h2>
-			<p>
-				We store your bag reference and saved artwork choices in your browser so they remain
-				available when you return. Saved pieces stay on this device and are not synced to an
-				account. You can remove saved items with the heart button, empty your bag, or clear this
-				site’s browser storage.
-			</p>
-			<p>
-				Shopify processes checkout, account access and newsletter signup on its hosted pages. These
-				services have their own cookie and privacy information. This storefront does not include
-				advertising or analytics trackers. Fonts are loaded from Google Fonts, which receives the
-				connection information needed to serve them.
-			</p>
-		</section>
-		<section>
-			<h2>Questions?</h2>
-			<p>
-				For help with your information or an order, contact <a href={'mailto:' + shopCopy.email}
-					>{shopCopy.email}</a
-				>.
-			</p>
-		</section>
-	</div>
 </main>
 
 <style>
-	.policy-content {
-		max-width: 800px;
-		padding-bottom: 4rem;
+	.policy-index {
+		max-width: 42rem;
+		padding-block: 2.5rem 5rem;
 	}
-	.policy-content section {
-		margin-bottom: 3rem;
+	h1 {
+		margin: 0 0 2rem;
+		font-size: clamp(2rem, 4vw, 3rem);
 	}
-	.policy-content p,
-	.policy-content li {
-		font-size: 0.85rem;
-		line-height: 1.9;
+	nav {
+		display: grid;
+		border-top: 1px solid var(--line);
+	}
+	nav a {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1.2rem 0;
+		border-bottom: 1px solid var(--line);
+		text-decoration: none;
+		font-size: 1rem;
+	}
+	nav a:hover {
+		text-decoration: underline;
+		text-underline-offset: 5px;
+	}
+	nav span {
+		color: var(--moss);
+	}
+	.privacy-settings {
+		margin-top: 3rem;
+	}
+	h2 {
+		font-size: 1.4rem;
+	}
+	button {
+		display: block;
+		min-height: 44px;
+		border: 0;
+		padding: 0.4rem 0;
+		background: none;
+		font: 400 0.8rem var(--font-sans);
+		color: var(--navy);
+		text-decoration: underline;
+		text-underline-offset: 4px;
+		cursor: pointer;
+	}
+	p {
 		color: var(--body);
-	}
-	.policy-content li {
-		margin: 0.8rem 0;
-	}
-	.policy-content ul {
-		padding-left: 1.2rem;
+		font-size: 0.85rem;
 	}
 </style>

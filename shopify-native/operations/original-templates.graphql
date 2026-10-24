@@ -1,0 +1,1 @@
+mutation OriginalTemplates { productUpdate(product:{id:"gid://shopify/Product/16658763252103",templateSuffix:"original"}) { product { id templateSuffix } userErrors { field message } } collectionUpdate(collection:{id:"gid://shopify/Collection/755295453575",templateSuffix:"originals"}) { collection { id handle templateSuffix } userErrors { field message } } }

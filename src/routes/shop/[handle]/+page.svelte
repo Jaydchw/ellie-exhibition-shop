@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Seo from '$lib/components/seo.svelte';
+	import { productStructuredData, breadcrumbStructuredData } from '$lib/seo';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { useShop } from '$lib/commerce/shop.svelte';
@@ -6,35 +8,38 @@
 	import ProductMedia from '$lib/components/shop/product-media.svelte';
 	import VariantPicker from '$lib/components/shop/variant-picker.svelte';
 	import QuantityPicker from '$lib/components/shop/quantity-picker.svelte';
-	import { isClothing, isOnSale, savingsPercent } from '$lib/commerce/presentation';
+	import {
+		isClothing,
+		isOriginal,
+		isSoldOriginal,
+		isOnSale,
+		savingsPercent,
+		quantityLimit
+	} from '$lib/commerce/presentation';
 	import ProductCard from '$lib/components/shop/product-card.svelte';
 	import Modal from '$lib/components/shop/modal.svelte';
+	import ImageViewer from '$lib/components/ui/image-viewer.svelte';
 	import Icon from '$lib/components/shop/icon.svelte';
 	let { data } = $props();
 	const shop = useShop();
 	let selected = $state<Record<string, string>>({});
-	let quantity = $state(1);
 	let zoom = $state(false);
 	let guide = $state(false);
 	let imageIndex = $state(0);
 	let product = $derived(data.product);
-	$effect(() => {
-		const initial =
-			product.variants.find((v) => v.id === page.url.searchParams.get('variant')) ??
+	let initialVariant = $derived(
+		product.variants.find((v) => v.id === page.url.searchParams.get('variant')) ??
 			product.variants.find((v) => v.availableForSale) ??
-			product.variants[0];
-		selected = Object.fromEntries(initial.selectedOptions.map((o) => [o.name, o.value]));
+			product.variants[0]
+	);
+	$effect(() => {
+		selected = Object.fromEntries(initialVariant.selectedOptions.map((o) => [o.name, o.value]));
 		imageIndex = 0;
-		quantity = 1;
 	});
 	let choices = $derived(
 		Object.keys(selected).length
 			? selected
-			: Object.fromEntries(
-					(
-						product.variants.find((v) => v.availableForSale) ?? product.variants[0]
-					).selectedOptions.map((o) => [o.name, o.value])
-				)
+			: Object.fromEntries(initialVariant.selectedOptions.map((o) => [o.name, o.value]))
 	);
 	let variant = $derived(
 		product.variants.find((v) => v.selectedOptions.every((o) => choices[o.name] === o.value))
@@ -49,6 +54,48 @@
 	);
 	let demo = $derived(product.id.startsWith('demo-'));
 	let clothing = $derived(isClothing(product));
+	let original = $derived(isOriginal(product));
+	let sold = $derived(isSoldOriginal(product));
+	let inBag = $derived(original && shop.cart?.lines.some((line) => line.handle === product.handle));
+	let step = $derived(original ? 1 : (variant?.quantityRule?.increment ?? 1));
+	let maximum = $derived(quantityLimit(product, variant));
+	let existingQuantity = $derived(
+		shop.cart?.lines
+			.filter((line) => line.variant.id === variant?.id)
+			.reduce((total, line) => total + line.quantity, 0) ?? 0
+	);
+	let minimum = $derived(
+		original ? 1 : existingQuantity > 0 ? step : (variant?.quantityRule?.minimum ?? 1)
+	);
+	let remaining = $derived(Math.max(0, maximum - existingQuantity));
+	let addMaximum = $derived(minimum + Math.max(0, Math.floor((remaining - minimum) / step)) * step);
+	let quantity = $derived(Math.min(minimum, addMaximum));
+	let canAdd = $derived(!!variant?.availableForSale && remaining >= minimum);
+	let careInstructions = $derived(
+		product.careInstructions?.trim() ||
+			(original
+				? ''
+				: clothing
+					? 'Follow the garment care label. Wash inside out with similar colours. Do not iron directly over the print.'
+					: 'Handle prints with clean, dry hands. Keep away from moisture and direct sunlight. Dust frames with a soft, dry cloth.')
+	);
+	const printDimensions: Record<string, string> = {
+		A4: '21 × 29.7 cm',
+		A3: '29.7 × 42 cm'
+	};
+	let printSizes = $derived(
+		product.options
+			.find((option) => /^size$/i.test(option.name))
+			?.values.filter((value) => printDimensions[value]) ?? []
+	);
+	let artworkDetails = $derived(
+		Object.entries({
+			Medium: product.artwork?.medium,
+			Dimensions: product.artwork?.dimensions,
+			Year: product.artwork?.year,
+			Framing: product.artwork?.framing
+		}).filter(([, value]) => value)
+	);
 	function choose(name: string, value: string) {
 		const requested = { ...choices, [name]: value };
 		const exact = product.variants.find(
@@ -56,66 +103,60 @@
 		);
 		const next =
 			exact ??
-			product.variants.find(
-				(v) =>
-					v.availableForSale && v.selectedOptions.some((o) => o.name === name && o.value === value)
-			);
+			product.variants
+				.filter(
+					(v) =>
+						v.availableForSale &&
+						v.selectedOptions.some((o) => o.name === name && o.value === value)
+				)
+				.sort((a, b) => {
+					const matches = (candidate: typeof a) =>
+						candidate.selectedOptions.filter((option) => choices[option.name] === option.value)
+							.length;
+					return matches(b) - matches(a);
+				})[0];
 		selected = next
 			? Object.fromEntries(next.selectedOptions.map((o) => [o.name, o.value]))
 			: requested;
 		imageIndex = 0;
 	}
 	let related = $derived(
-		data.products.filter((p) => p.id !== product.id && isClothing(p) === clothing).slice(0, 3)
-	);
-	let structured = $derived(
-		JSON.stringify({
-			'@context': 'https://schema.org',
-			'@type': 'Product',
-			name: product.title,
-			description: product.description,
-			image: product.images.map((i) => i.url),
-			brand: { '@type': 'Brand', name: 'Seal Stuff' },
-			offers: variant
-				? {
-						'@type': 'Offer',
-						price: variant.price.amount,
-						priceCurrency: variant.price.currencyCode,
-						availability: variant.availableForSale
-							? 'https://schema.org/InStock'
-							: 'https://schema.org/OutOfStock',
-						url: page.url.origin + page.url.pathname
-					}
-				: undefined
-		}).replace(/</g, '\\u003c')
-	);
-	let structuredMarkup = $derived(
-		'<script type="application/ld+json">' + structured + '</' + 'script>'
+		data.products
+			.filter(
+				(p) => p.id !== product.id && isClothing(p) === clothing && isOriginal(p) === original
+			)
+			.slice(0, 3)
 	);
 </script>
 
-<svelte:head
-	><title>{product.title} — Seal Stuff</title><meta
-		name="description"
-		content={product.description.slice(0, 155)}
-	/><meta property="og:title" content={product.title + ' — Seal Stuff'} />{#if image}<meta
-			property="og:image"
-			content={image.url}
-		/>{/if}{#if shop.config.live}
-		<!-- eslint-disable-next-line svelte/no-at-html-tags -- JSON is serialized and all less-than characters are escaped. -->
-		{@html structuredMarkup}
-	{/if}</svelte:head
->
+<Seo
+	title={product.seo?.title?.trim() || product.title + ' - Seal Stuff'}
+	description={product.seo?.description?.trim() || product.description}
+	image={image || product.images[0]}
+	type="product"
+	structuredData={shop.config.live
+		? [
+				productStructuredData(page.data.siteUrl || page.url.origin, product),
+				breadcrumbStructuredData(page.data.siteUrl || page.url.origin, [
+					{ name: 'Home', path: '/' },
+					{ name: 'Shop', path: '/shop' },
+					{ name: product.title, path: '/shop/' + encodeURIComponent(product.handle) }
+				])
+			]
+		: undefined}
+/>
 <main id="main-content" class="shop-page wrap">
 	<nav class="breadcrumb" aria-label="Breadcrumb">
 		<a href={resolve('/shop')}>Shop</a><span>/</span><span>{product.title}</span>
 	</nav>
-	<section class="product-detail">
+	<section class="product-detail" class:original>
 		<div class="product-gallery">
 			<button
 				class="product-stage"
 				class:garment={clothing}
+				class:original-stage={original}
 				aria-label="Enlarge product image"
+				disabled={!image}
 				onclick={() => (zoom = true)}
 				><ProductMedia {product} {image} finish={demo ? finish : 'Print'} eager /><span
 					class="zoom-label"><Icon name="zoom" size={22} /></span
@@ -136,7 +177,11 @@
 				</div>{/if}
 		</div>
 		<div class="product-options">
-			<p class="product-category">{clothing ? product.productType : 'Art print'} · Ellie Seal</p>
+			<p class="product-category">
+				{original
+					? 'Original artwork'
+					: product.productType || (clothing ? 'Clothing' : 'Art print')} · Ellie Seal
+			</p>
 			<h1>{product.title}</h1>
 			<div class="price-row" aria-live="polite">
 				<p class="product-price" class:sale-price={variant && isOnSale(variant)}>
@@ -148,21 +193,49 @@
 						>Save {savingsPercent(variant)}%</span
 					>{/if}
 			</div>
-			{#if clothing}<p class="product-intro">{product.description.split('\n\n')[0]}</p>{/if}
-			<VariantPicker {product} {choices} onchoose={choose} />
-			<button class="text-button size-link" onclick={() => (guide = true)}
-				><Icon name="ruler" size={18} />{clothing ? 'Size & fit' : 'Size guide'}</button
-			>
+			{#if original}
+				{#each product.description.split(/\n\s*\n/).filter(Boolean) as paragraph, i (i)}
+					<p class="product-intro original-description">{paragraph}</p>
+				{/each}
+				{#if artworkDetails.length}<dl class="artwork-details">
+						{#each artworkDetails as [label, value] (label)}<div>
+								<dt>{label}</dt>
+								<dd>{value}</dd>
+							</div>{/each}
+					</dl>{/if}
+			{:else}
+				{#if clothing}<p class="product-intro">{product.description.split('\n\n')[0]}</p>{/if}
+				<VariantPicker {product} {choices} onchoose={choose} />
+				{#if clothing || printSizes.length}
+					<button class="text-button size-link" onclick={() => (guide = true)}
+						><Icon name="ruler" size={18} />{clothing ? 'Size & fit' : 'Size guide'}</button
+					>
+				{/if}
+			{/if}
 			<div class="buy-row">
-				<QuantityPicker value={quantity} onchange={(value) => (quantity = value)} /><button
+				{#if !original && remaining > minimum}<QuantityPicker
+						value={quantity}
+						min={minimum}
+						max={addMaximum}
+						{step}
+						disabled={shop.busy || !canAdd}
+						onchange={(value) => (quantity = value)}
+					/>{/if}<button
 					class="button"
-					disabled={!variant?.availableForSale || shop.busy}
-					onclick={() => variant && shop.add(product, variant, quantity)}
-					><Icon name={shop.busy ? 'spinner' : 'bag'} size={19} />{shop.busy
+					disabled={shop.busy || (!canAdd && !inBag && existingQuantity === 0)}
+					onclick={() =>
+						inBag || (!canAdd && existingQuantity > 0)
+							? (shop.open = true)
+							: variant && shop.add(product, variant, original ? 1 : quantity)}
+					><Icon name={shop.busy && !sold ? 'spinner' : 'bag'} size={19} />{shop.busy && !sold
 						? 'Adding…'
-						: variant?.availableForSale
-							? 'Add to bag'
-							: 'Unavailable'}</button
+						: sold
+							? 'Sold'
+							: inBag || (!canAdd && existingQuantity > 0)
+								? 'View bag'
+								: canAdd
+									? 'Add to bag'
+									: 'Unavailable'}</button
 				><button
 					class="save-product icon-button"
 					class:saved={shop.saved.includes(product.handle)}
@@ -172,34 +245,34 @@
 				>
 			</div>
 			<div class="product-promises">
-				<p><Icon name="truck" size={19} /> International delivery</p>
+				{#if !sold}<p><Icon name="truck" size={19} /> Delivery at checkout</p>{/if}
 				<p><Icon name="lock" size={19} /> Secure checkout</p>
 			</div>
-			<details class="help-details">
-				<summary>Product details</summary
-				>{#each product.description.split('\n\n') as paragraph, i (i)}<p>
-						{paragraph}
-					</p>{/each}{#if demo && !clothing}<p>
-						Available as a poster, matte fine art print, or framed print. Black, natural and white
-						frames. A4, A3 and A2 sizes.
-					</p>{/if}
-			</details>
+			{#if !original}<details class="help-details">
+					<summary>Product details</summary
+					>{#each product.description.split('\n\n') as paragraph, i (i)}<p>
+							{paragraph}
+						</p>{/each}{#if demo && !clothing}<p>
+							Available as a poster, matte fine art print, or framed print. Black, natural and white
+							frames. A4 and A3 sizes.
+						</p>{/if}
+				</details>{/if}
 			<details class="help-details">
 				<summary>Delivery & returns</summary>
 				<p>
-					Made to order. Delivery options and costs are shown at checkout. Items may arrive in
-					separate parcels. <a href={resolve('/help')}>Delivery help</a> ·
+					{original
+						? 'Sent by Ellie. Delivery and collection options are shown at checkout where available.'
+						: 'Made to order. Delivery options and costs are shown at checkout. Items may arrive in separate parcels.'}
+					<a href={resolve('/help')}>Delivery help</a> ·
 					<a href={resolve('/policies')}>Returns policy</a>
 				</p>
 			</details>
-			<details class="help-details">
-				<summary>Care instructions</summary>
-				<p>
-					{clothing
-						? 'Follow the garment care label. Wash inside out with similar colours. Do not iron directly over the print.'
-						: 'Handle prints with clean, dry hands. Keep away from moisture and direct sunlight. Dust frames with a soft, dry cloth.'}
-				</p>
-			</details>
+			{#if careInstructions}<details class="help-details">
+					<summary>Care instructions</summary>
+					{#each careInstructions.split(/\n\s*\n/).filter(Boolean) as paragraph, i (i)}
+						<p>{paragraph}</p>
+					{/each}
+				</details>{/if}
 		</div>
 	</section>
 	{#if related.length}<section class="section">
@@ -212,50 +285,80 @@
 			</div>
 		</section>{/if}
 </main>
-<Modal bind:open={zoom} title={product.title} hideTitle
-	><div class="zoom-stage">
-		<ProductMedia {product} {image} finish={demo ? finish : 'Print'} />
-	</div></Modal
->
-<Modal bind:open={guide} title={clothing ? 'Size & fit' : 'Print sizes'}
-	><div class="size-guide">
-		{#if clothing}{#if product.sizeGuide}<table>
-					<thead
-						><tr
-							>{#each product.sizeGuide.headers as heading (heading)}<th>{heading}</th>{/each}</tr
-						></thead
-					><tbody
-						>{#each product.sizeGuide.rows as row (row[0])}<tr
-								>{#each row as cell, i (i)}<td>{cell}</td>{/each}</tr
+{#if image}<ImageViewer
+		bind:open={zoom}
+		src={image.url}
+		alt={image.altText ?? product.title}
+		title={product.title}
+	/>{/if}
+{#if !original}<Modal bind:open={guide} title={clothing ? 'Size & fit' : 'Print sizes'}
+		><div class="size-guide">
+			{#if clothing}{#if product.sizeGuide}<table>
+						<thead
+							><tr
+								>{#each product.sizeGuide.headers as heading (heading)}<th>{heading}</th>{/each}</tr
+							></thead
+						><tbody
+							>{#each product.sizeGuide.rows as row (row[0])}<tr
+									>{#each row as cell, i (i)}<td>{cell}</td>{/each}</tr
+								>{/each}</tbody
+						>
+					</table>
+					<p class="small">{product.sizeGuide.note}</p>{:else}<p class="small">
+						{product.description}
+					</p>{/if}
+				<p class="small">
+					Available sizes: {product.options.find((o) => /size/i.test(o.name))?.values.join(', ')}.
+				</p>
+				<p class="small muted">
+					Need help choosing? <a href={resolve('/help#contact')} onclick={() => (guide = false)}
+						>Contact Ellie</a
+					>.
+				</p>
+			{:else}<table>
+					<thead><tr><th>Size</th><th>Paper dimensions</th></tr></thead><tbody
+						>{#each printSizes as size (size)}<tr
+								><td>{size}</td><td>{printDimensions[size]}</td></tr
 							>{/each}</tbody
 					>
 				</table>
-				<p class="small">{product.sizeGuide.note}</p>{:else}<p class="small">
-					{product.description}
+				<p class="small muted">
+					Dimensions are the short and long edges. Frames add to the outside measurements. Check the
+					product options for available sizes.
 				</p>{/if}
-			<p class="small">
-				Available sizes: {product.options.find((o) => /size/i.test(o.name))?.values.join(', ')}.
-			</p>
-			<p class="small muted">
-				Need help choosing? <a href={resolve('/help#contact')} onclick={() => (guide = false)}
-					>Contact Ellie</a
-				>.
-			</p>
-		{:else}<table>
-				<thead><tr><th>Size</th><th>Paper dimensions</th></tr></thead><tbody
-					><tr><td>A4</td><td>21 × 29.7 cm</td></tr><tr><td>A3</td><td>29.7 × 42 cm</td></tr><tr
-						><td>A2</td><td>42 × 59.4 cm</td></tr
-					></tbody
-				>
-			</table>
-			<p class="small muted">
-				Dimensions are the short and long edges. Frames add to the outside measurements. Check the
-				product options for available sizes.
-			</p>{/if}
-	</div></Modal
->
+		</div></Modal
+	>{/if}
 
 <style>
+	.original .original-stage {
+		background: color-mix(in srgb, var(--stone) 35%, var(--paper));
+		padding: 8%;
+	}
+	.original-stage :global(.product-photo) {
+		height: 100%;
+		max-height: 100%;
+	}
+	.artwork-details {
+		margin: 1.8rem 0 2rem;
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+	}
+	.artwork-details > div {
+		display: grid;
+		grid-template-columns: 7rem 1fr;
+		gap: 1rem;
+		padding: 0.7rem 0;
+		border-bottom: 1px solid var(--line);
+	}
+	.artwork-details dt {
+		color: var(--muted);
+	}
+	.artwork-details dd {
+		margin: 0;
+	}
+	.original-description {
+		white-space: pre-line;
+	}
 	.product-detail {
 		display: grid;
 		grid-template-columns: 1.2fr 1fr;
@@ -279,6 +382,7 @@
 		border: 0;
 		color: var(--navy);
 		overflow: hidden;
+		cursor: zoom-in;
 	}
 	.product-stage.garment {
 		padding: 2%;
@@ -395,17 +499,6 @@
 		height: 100%;
 		object-fit: contain;
 	}
-	.zoom-stage {
-		height: 70vh;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 4%;
-	}
-	.zoom-stage :global(.art-display) {
-		max-width: 100%;
-		max-height: 100%;
-	}
 	.size-guide table {
 		width: 100%;
 		border-collapse: collapse;
@@ -453,9 +546,6 @@
 		}
 		.buy-row .button {
 			min-width: 0;
-		}
-		.zoom-stage {
-			height: 60vh;
 		}
 	}
 </style>

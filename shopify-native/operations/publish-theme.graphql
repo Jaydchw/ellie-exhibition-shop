@@ -1,0 +1,1 @@
+mutation PublishNativeShop { themePublish(id:"gid://shopify/OnlineStoreTheme/212416823687") { theme { id name role } userErrors { field message } } }

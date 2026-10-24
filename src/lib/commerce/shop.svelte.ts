@@ -2,6 +2,14 @@ import { getContext } from 'svelte';
 import { SvelteURL } from 'svelte/reactivity';
 import { mutateCart, readCart } from './shopify';
 import type { Cart, Product, ShopConfig, Variant } from './types';
+import { isOriginal, quantityLimit } from './presentation';
+
+function boundedQuantity(quantity: number, maximum: number, variant: Variant) {
+	const minimum = variant.quantityRule?.minimum ?? 1;
+	const increment = variant.quantityRule?.increment ?? 1;
+	if (maximum < minimum) return 0;
+	return Math.max(minimum, Math.floor(Math.min(quantity, maximum) / increment) * increment);
+}
 
 export const SHOP = Symbol('shop');
 export const useShop = () => getContext<ShopState>(SHOP);
@@ -40,24 +48,32 @@ export class ShopState {
 			if (this.config.live && typeof previous?.id === 'string')
 				this.cart = await readCart(this.config, previous.id);
 			else if (!this.config.live && Array.isArray(previous?.lines)) {
-				const lines = previous.lines.flatMap(
-					(line: { variant?: { id?: string }; quantity?: number }) => {
-						const p = products.find((p) => p.variants.some((v) => v.id === line.variant?.id));
-						const v = p?.variants.find((v) => v.id === line.variant?.id);
-						return p && v && Number.isInteger(line.quantity) && line.quantity! > 0
-							? [
-									{
-										id: v.id,
-										title: p.title,
-										handle: p.handle,
-										image: v.image?.url ?? p.images[0]?.url ?? '',
-										variant: v,
-										quantity: Math.min(line.quantity!, 99)
-									}
-								]
-							: [];
-					}
-				);
+				const lines: Cart['lines'] = [];
+				for (const line of previous.lines as { variant?: { id?: string }; quantity?: number }[]) {
+					const p = products.find((p) => p.variants.some((v) => v.id === line.variant?.id));
+					const v = p?.variants.find((v) => v.id === line.variant?.id);
+					if (!p || !v || !Number.isInteger(line.quantity) || line.quantity! < 1) continue;
+					if (isOriginal(p) && lines.some((item) => item.handle === p.handle)) continue;
+					const existing = lines.find((item) => item.variant.id === v.id);
+					const quantity = boundedQuantity(
+						(existing?.quantity ?? 0) + line.quantity!,
+						quantityLimit(p, v),
+						v
+					);
+					if (!quantity) continue;
+					if (existing) existing.quantity = quantity;
+					else
+						lines.push({
+							id: v.id,
+							title: p.title,
+							handle: p.handle,
+							productType: p.productType,
+							tags: p.tags,
+							image: v.image?.url ?? p.images[0]?.url ?? '',
+							variant: v,
+							quantity
+						});
+				}
 				this.cart = {
 					id: 'preview',
 					checkoutUrl: '',
@@ -96,6 +112,20 @@ export class ShopState {
 		this.cart.subtotal = { amount, currencyCode: 'GBP' };
 		this.cart.total = { ...this.cart.subtotal };
 	}
+	quantityMaximum(id: string) {
+		const line = this.cart?.lines.find((item) => item.id === id);
+		if (!line) return 0;
+		const otherCopies = this.cart!.lines.reduce(
+			(sum, item) =>
+				sum +
+				(item.id !== id &&
+				(isOriginal(line) ? item.handle === line.handle : item.variant.id === line.variant.id)
+					? item.quantity
+					: 0),
+			0
+		);
+		return Math.max(0, quantityLimit(line) - otherCopies);
+	}
 	async add(product: Product, variant: Variant, quantity = 1) {
 		if (
 			this.busy ||
@@ -110,6 +140,27 @@ export class ShopState {
 		this.notice = '';
 		this.open = true;
 		try {
+			if (isOriginal(product)) {
+				if (this.cart?.lines.some((line) => line.handle === product.handle)) {
+					this.notice = 'This original is already in your bag.';
+					return;
+				}
+				quantity = 1;
+			}
+			const existingQuantity =
+				this.cart?.lines.reduce(
+					(sum, line) => sum + (line.variant.id === variant.id ? line.quantity : 0),
+					0
+				) ?? 0;
+			const maximum = quantityLimit(product, variant);
+			const targetQuantity = boundedQuantity(existingQuantity + quantity, maximum, variant);
+			quantity = Math.max(0, targetQuantity - existingQuantity);
+			if (!quantity) {
+				this.notice = maximum
+					? 'All available copies are already in your bag.'
+					: 'This piece is no longer available.';
+				return;
+			}
 			if ((this.cart?.lines.length ?? 0) >= 100)
 				throw new Error('Your bag is full. Please check out before adding more pieces.');
 			if (this.config.live)
@@ -131,13 +182,15 @@ export class ShopState {
 					discountCodes: []
 				};
 				const existing = this.cart.lines.find((l) => l.variant.id === variant.id);
-				if (existing) existing.quantity = Math.min(99, existing.quantity + quantity);
+				if (existing) existing.quantity += quantity;
 				else
 					this.cart.lines.push({
 						id: variant.id,
 						quantity,
 						title: product.title,
 						handle: product.handle,
+						productType: product.productType,
+						tags: product.tags,
 						image: variant.image?.url ?? product.images[0]?.url ?? '',
 						variant
 					});
@@ -154,6 +207,14 @@ export class ShopState {
 	async quantity(id: string, quantity: number) {
 		if (this.busy || !this.cart || !Number.isInteger(quantity) || quantity < 0 || quantity > 99)
 			return;
+		const line = this.cart.lines.find((item) => item.id === id);
+		if (!line) return;
+		if (quantity) {
+			quantity = boundedQuantity(quantity, this.quantityMaximum(id), line.variant);
+			// An unavailable item can still be removed explicitly, but increasing
+			// its quantity must not silently remove it from the customer's bag.
+			if (!quantity || quantity === line.quantity) return;
+		}
 		this.busy = true;
 		this.error = '';
 		this.notice = '';
@@ -217,6 +278,34 @@ export class ShopState {
 			this.persist();
 			if (!this.cart?.lines.length)
 				throw new Error('This bag has expired. Please add your pieces again.');
+			if (
+				this.cart.lines.some(
+					(line) =>
+						isOriginal(line) &&
+						this.cart!.lines.reduce(
+							(sum, item) => sum + (item.handle === line.handle ? item.quantity : 0),
+							0
+						) > 1
+				)
+			)
+				throw new Error('An original can only be purchased once. Update its quantity in your bag.');
+			if (
+				this.cart.lines.some((line) => {
+					const copies = this.cart!.lines.reduce(
+						(sum, item) => sum + (item.variant.id === line.variant.id ? item.quantity : 0),
+						0
+					);
+					const rule = line.variant.quantityRule;
+					return (
+						copies > quantityLimit(line) ||
+						copies < (rule?.minimum ?? 1) ||
+						copies % (rule?.increment ?? 1) !== 0
+					);
+				})
+			)
+				throw new Error(
+					'Availability has changed. Please update the quantities in your bag before checkout.'
+				);
 			const destination = new SvelteURL(this.cart.checkoutUrl);
 			if (destination.protocol !== 'https:')
 				throw new Error('Checkout is unavailable. Please try again.');

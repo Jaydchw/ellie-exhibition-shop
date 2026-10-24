@@ -1,89 +1,59 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { shopCopy } from '$lib/content/shop';
-	import { page } from '$app/state';
-	import { isClothing } from '$lib/commerce/presentation';
-	let hasClothing = $derived(page.data.products?.some(isClothing) ?? false);
-	let faqs = $derived(shopCopy.faqs.filter((faq) => faq.category !== 'clothing' || hasClothing));
+	import Seo from '$lib/components/seo.svelte';
+	let { data } = $props();
 </script>
 
-<svelte:head
-	><title>Help — Delivery, sizes & finishes — Seal Stuff</title><meta
-		name="description"
-		content="Find your print size and finish, learn about international delivery, or get in touch with Seal Stuff."
-	/></svelte:head
->
+<Seo
+	title="Delivery, print sizes & order help | Seal Stuff"
+	description="Questions about art prints, original paintings and your order? Find delivery information, A4 and A3 print sizes, answers and contact details for Ellie Seal."
+/>
+
 <main id="main-content" class="shop-page wrap">
-	<section class="page-intro">
-		<h1>Help</h1>
-		<p>Delivery, sizes, product care and contact details.</p>
-	</section>
+	<section class="page-intro"><h1>A little help.</h1></section>
 	<div class="help-layout">
 		<nav aria-label="Help topics">
-			<a href="#questions">Your questions</a><a href="#sizes">Sizes & finishes</a><a href="#contact"
-				>Get in touch</a
-			><a href={resolve('/policies')}>Shop policies</a>
+			<a href="#questions">Your questions</a>
+			<a href="#sizes">Print sizes</a>
+			<a href="#contact">Get in touch</a>
+			<a href={resolve('/policies')}>Shop policies</a>
 		</nav>
 		<div>
-			<section id="questions">
-				<h2>Frequently asked questions</h2>
-				{#each faqs as faq (faq.title)}<details class="help-details">
-						<summary>{faq.title}</summary>
-						<p>{faq.body}</p>
-					</details>{/each}
-			</section>
-			<section id="sizes">
-				<h2>Print sizes & finishes</h2>
-				<p>
-					Our starting collection offers three familiar paper sizes. Check each product for current
-					options. The artwork may be landscape or portrait; the dimensions below are the short and
-					long edges.
-				</p>
-				<div class="size-diagram" aria-hidden="true">
-					<div class="a2">
-						A2
-						<div class="a3">
-							A3
-							<div class="a4">A4</div>
+			<section id="questions" aria-label="Frequently asked questions">
+				<dl class="faq-list">
+					{#each data.content.faqs as faq (faq.id)}
+						<div>
+							<dt>{faq.title}</dt>
+							<dd>{faq.body}</dd>
 						</div>
-					</div>
+					{/each}
+				</dl>
+			</section>
+			<section id="sizes" class="size-guide">
+				<div>
+					<h2>Print sizes</h2>
+					<table>
+						<thead><tr><th>Size</th><th>Paper dimensions</th></tr></thead>
+						<tbody
+							><tr><td>A4</td><td>21 × 29.7 cm</td></tr><tr><td>A3</td><td>29.7 × 42 cm</td></tr
+							></tbody
+						>
+					</table>
+					<p class="size-note">
+						Available sizes, finishes and original painting dimensions are listed on each piece.
+					</p>
 				</div>
-				<table>
-					<thead><tr><th>Size</th><th>Paper dimensions</th><th>Suggested use</th></tr></thead><tbody
-						><tr><td>A4</td><td>21 × 29.7 cm</td><td>Shelves, desks, small walls</td></tr><tr
-							><td>A3</td><td>29.7 × 42 cm</td><td>Gallery walls, reading corners</td></tr
-						><tr><td>A2</td><td>42 × 59.4 cm</td><td>Feature walls, above furniture</td></tr></tbody
-					>
-				</table>
-				<p class="small muted">
-					Frames add to the outside measurements. Borders and image proportions depend on the
-					artwork and approved print file. Check the product specification before ordering.
-				</p>
-				<div class="finish-guide">
-					<div>
-						<h3>Posters</h3>
-						<p>Delivered unframed. Available in A4, A3 and A2.</p>
-					</div>
-					<div>
-						<h3>Fine art prints</h3>
-						<p>Giclée prints on matte art paper.</p>
-					</div>
-					<div>
-						<h3>Framed prints</h3>
-						<p>
-							A print and frame together. Start with black, natural or white; find the available
-							finishes on each piece.
-						</p>
+				<div class="size-diagram" aria-hidden="true">
+					<div class="a3">
+						A3
+						<div class="a4">A4</div>
 					</div>
 				</div>
 			</section>
 			<section id="contact" class="help-contact">
-				<h2>Contact</h2>
-				<p>
-					Questions about a piece or an order? Email Ellie. For an existing order, include your
-					order number so we can help.
-				</p>
-				<a class="button" href={'mailto:' + shopCopy.email}>{shopCopy.email}</a>
+				<h2>Get in touch</h2>
+				<a class="text-link" href={'mailto:' + shopCopy.email}>{shopCopy.email}</a>
 			</section>
 		</div>
 	</div>
@@ -92,30 +62,66 @@
 <style>
 	.help-layout {
 		display: grid;
-		grid-template-columns: 220px 1fr;
-		gap: 5rem;
-		padding: 1rem 0 5rem;
+		grid-template-columns: 12rem minmax(0, 1fr);
+		gap: clamp(2rem, 7vw, 6rem);
+		padding: 0 0 4rem;
 	}
 	.help-layout > nav {
 		display: flex;
 		flex-direction: column;
-		gap: 1.25rem;
+		align-items: flex-start;
+		gap: 0.3rem;
 		align-self: start;
 		position: sticky;
 		top: 8rem;
 	}
 	.help-layout > nav a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
 		font-family: var(--font-sans);
 		font-size: 0.75rem;
 		text-underline-offset: 5px;
 	}
 	.help-layout section {
 		scroll-margin-top: 8rem;
-		margin-bottom: 4rem;
 	}
-	.help-layout p {
-		font-size: 0.85rem;
+	.faq-list {
+		margin: 0;
+	}
+	.faq-list > div {
+		display: grid;
+		grid-template-columns: 0.9fr 1.3fr;
+		gap: 2rem;
+		padding-block: 1.65rem;
+		border-top: 1px solid var(--line);
+	}
+	.faq-list dt {
+		font-size: 1.35rem;
+		line-height: 1.3;
+		text-wrap: pretty;
+	}
+	.faq-list dd {
+		margin: 0;
+		font-family: var(--font-sans);
+		font-size: 0.8rem;
+		line-height: 1.85;
 		color: var(--body);
+		white-space: pre-line;
+	}
+	.size-guide {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 11rem;
+		gap: 2rem;
+		align-items: center;
+		padding-block: 3rem;
+		margin-top: 1.5rem;
+		border-top: 1px solid var(--line);
+	}
+	.size-guide h2,
+	.help-contact h2 {
+		font-size: 2.3rem;
+		margin-top: 0;
 	}
 	table {
 		width: 100%;
@@ -125,83 +131,82 @@
 	th,
 	td {
 		text-align: left;
-		padding: 1rem 0.5rem;
+		padding: 0.75rem 0;
 		border-bottom: 1px solid var(--line);
+	}
+	th {
+		font-weight: 500;
+		color: var(--muted);
+	}
+	.size-note {
+		font-size: 0.72rem;
+		color: var(--muted);
+		margin: 1rem 0 0;
+		max-width: 26rem;
 	}
 	.size-diagram {
 		display: grid;
 		place-items: center;
-		background: var(--stone);
-		padding: 2rem;
-		margin: 2rem 0;
-	}
-	.a2 {
-		position: relative;
-		width: 220px;
-		height: 280px;
-		background: #b8c1a6;
-		border: 1px solid #6f7a5d;
-		padding: 1rem;
+		font-family: var(--font-sans);
+		font-size: 0.65rem;
 	}
 	.a3 {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 71%;
-		height: 71%;
-		background: #e3e5d8;
-		border: 1px solid #6f7a5d;
-		padding: 1rem;
+		position: relative;
+		width: 10rem;
+		aspect-ratio: 297 / 420;
+		background: var(--sage-light);
+		border: 1px solid var(--moss);
+		padding: 0.75rem;
+		text-align: right;
 	}
 	.a4 {
 		position: absolute;
-		bottom: 0;
-		left: 0;
+		bottom: -1px;
+		left: -1px;
 		width: 71%;
 		height: 71%;
 		background: var(--paper);
-		border: 1px solid #6f7a5d;
-		padding: 1rem;
-	}
-	.finish-guide {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 1.5rem;
-		margin-top: 2rem;
-	}
-	.finish-guide p {
-		font-size: 0.75rem;
+		border: 1px solid var(--moss);
+		padding: 0.75rem;
+		text-align: left;
 	}
 	.help-contact {
-		background: var(--sage-light);
-		padding: 2.5rem;
+		padding-block: 2rem;
+		border-top: 1px solid var(--line);
 	}
-	.help-contact .button {
-		font-size: 0.75rem;
-		padding-inline: 1rem;
+	.help-contact a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		overflow-wrap: anywhere;
+	}
+	@media (max-width: 900px) {
+		.faq-list > div {
+			grid-template-columns: 1fr;
+			gap: 0.75rem;
+		}
 	}
 	@media (max-width: 760px) {
 		.help-layout {
 			grid-template-columns: 1fr;
-			gap: 2rem;
+			gap: 1.5rem;
 		}
 		.help-layout > nav {
 			position: static;
 			flex-direction: row;
 			flex-wrap: wrap;
-			gap: 1rem;
+			gap: 0 1.5rem;
 		}
-		.finish-guide {
-			grid-template-columns: 1fr;
-			gap: 0.5rem;
+		.size-guide {
+			grid-template-columns: minmax(0, 1fr) 7rem;
+			gap: 1.2rem;
 		}
-		.help-contact {
-			padding: 1.5rem;
+		.a3 {
+			width: 7rem;
 		}
-		th,
-		td {
-			font-size: 0.65rem;
-			padding: 0.75rem 0.25rem;
+		.size-guide h2,
+		.help-contact h2 {
+			font-size: 2rem;
 		}
 	}
 </style>

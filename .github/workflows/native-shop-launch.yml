@@ -1,0 +1,74 @@
+name: Native shop launch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-shop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-and-deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Prepare report directory
+        run: mkdir -p native-shop-report
+      - name: Install project dependencies
+        id: dependencies
+        run: npm ci
+      - name: Check Svelte and TypeScript
+        run: npm run check
+      - name: Run tests
+        run: npm test
+      - name: Build production site
+        run: npm run build
+      - name: Deploy Cloudflare Pages when credentials are available
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [[ -n "$CLOUDFLARE_API_TOKEN" && -n "$CLOUDFLARE_ACCOUNT_ID" ]]; then
+            echo 'status=attempted' >> "$GITHUB_OUTPUT"
+            if node node_modules/wrangler/bin/wrangler.js pages deploy .svelte-kit/cloudflare --project-name ellie-exhibition-shop --branch main --commit-dirty=true; then
+              echo 'status=succeeded' >> "$GITHUB_OUTPUT"
+            else
+              echo 'status=failed' >> "$GITHUB_OUTPUT"
+              exit 1
+            fi
+          else
+            echo 'status=unavailable' >> "$GITHUB_OUTPUT"
+            echo 'Cloudflare deployment credentials are unavailable; existing Git integration may still deploy this push.'
+          fi
+      - name: Install browser smoke dependencies without changing project manifests
+        if: ${{ always() && steps.dependencies.outcome == 'success' }}
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright
+      - name: Install Chromium
+        if: ${{ always() && steps.dependencies.outcome == 'success' }}
+        run: npx playwright install --with-deps chromium
+      - name: Inspect native shop and public artist-site handoff
+        if: ${{ always() && steps.dependencies.outcome == 'success' }}
+        env:
+          SMOKE_DEPLOYMENT_STATUS: ${{ steps.deploy.outputs.status || 'not_run' }}
+          SMOKE_EXPECTED_THEME_ID: '212416823687'
+        run: node scripts/smoke-native-shop.mjs
+      - name: Upload screenshots and smoke report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-shop-report-${{ github.run_id }}
+          path: native-shop-report/
+          if-no-files-found: warn
+          retention-days: 14
