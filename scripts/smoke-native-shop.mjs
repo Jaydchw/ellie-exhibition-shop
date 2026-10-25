@@ -444,11 +444,18 @@ async function inspectArtistHandoff() {
 							links.map((link) => ({ text: link.textContent.trim(), href: link.href }))
 						);
 					check(
-						'artist:home:two-destinations',
-						destinations.length === 2 &&
+						'artist:home:three-destinations',
+						destinations.length === 3 &&
 							destinations.some((link) => link.href === `${artistOrigin}/murals`) &&
 							destinations.some(
-								(link) => new URL(link.href).origin !== artistOrigin && /shop/i.test(link.text)
+								(link) =>
+									new URL(link.href).origin !== artistOrigin &&
+									/^(?:visit\s+)?shop$/i.test(link.text)
+							) &&
+							destinations.some(
+								(link) =>
+									link.href === 'https://shop.ellieseal.co.uk/pages/contact' &&
+									/^contact$/i.test(link.text)
 							)
 					);
 				}

@@ -9,7 +9,7 @@
 	import LeafAccent from '$lib/components/ui/leaf-accent.svelte';
 	import SectionHeading from '$lib/components/ui/section-heading.svelte';
 	import portrait from '$lib/assets/images/murals/ellie-seal-mural-artist.png';
-	import { socialLinks } from '$lib/content/site';
+	import { shopContactUrl, socialLinks } from '$lib/content/site';
 	import Seo from '$lib/components/seo.svelte';
 	import ImageViewer from '$lib/components/ui/image-viewer.svelte';
 	let { data } = $props();
@@ -50,6 +50,10 @@
 					<Button href={data.onlineStoreUrl ?? resolve('/shop')} variant="outline" size="lg">
 						<ShoppingBag size={20} aria-hidden="true" />
 						Visit shop
+					</Button>
+					<Button href={shopContactUrl} variant="outline" size="lg">
+						<EnvelopeSimple size={20} aria-hidden="true" />
+						Contact
 					</Button>
 				</div>
 				<nav class="socials" aria-label="Social media and contact">
