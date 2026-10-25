@@ -43,9 +43,6 @@
 						<FacebookLogo size={19} weight="bold" aria-hidden="true" />
 						{copy.hero.primaryAction}
 					</Button>
-					<a class="area-link" href={local ? resolve('/murals') : resolve('/murals/hull')}>
-						{local ? 'All murals' : 'Mural painting in Hull'} <span aria-hidden="true">↗</span>
-					</a>
 				</div>
 			</div>
 
