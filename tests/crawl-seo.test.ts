@@ -64,7 +64,9 @@ describe('sitemap discovery', () => {
 		const xml = staticSitemapXml(origin);
 		expect(xml).toContain('<loc>https://ellie.example/murals/hull</loc>');
 		expect(xml).toContain('<loc>https://ellie.example/murals</loc>');
-		expect(xml).toContain('<loc>https://ellie.example/about</loc>');
+		expect(xml).not.toContain('<loc>https://ellie.example/about</loc>');
+		expect(xml).not.toContain('<loc>https://ellie.example/help</loc>');
+		expect(xml).not.toContain('<loc>https://ellie.example/contact</loc>');
 		expect(xml).not.toContain('/saved');
 		expect(xml).not.toContain('/account');
 		expect(xml).not.toContain('lastmod');

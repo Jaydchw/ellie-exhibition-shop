@@ -21,7 +21,7 @@
 		{ ...socialLinks.facebook, icon: FacebookLogo },
 		{ ...socialLinks.email, icon: EnvelopeSimple }
 	];
-	let description = $derived(content.homeText);
+	let description = $derived(content.aboutText.split(/\n\s*\n/)[0]?.trim() || content.homeText);
 </script>
 
 <Seo
@@ -38,7 +38,7 @@
 			<div class="artist-hero__copy">
 				<SectionHeading
 					title={content.homeTitle}
-					description={content.homeText}
+					{description}
 					level="h1"
 					headingId="artist-title"
 				/>
@@ -47,7 +47,7 @@
 						<Palette size={20} aria-hidden="true" />
 						View murals
 					</Button>
-					<Button href={resolve('/shop')} variant="outline" size="lg">
+					<Button href={data.onlineStoreUrl ?? resolve('/shop')} variant="outline" size="lg">
 						<ShoppingBag size={20} aria-hidden="true" />
 						Visit shop
 					</Button>
@@ -99,7 +99,9 @@
 
 	.artist-hero {
 		position: relative;
-		min-height: min(42rem, calc(100dvh - 10rem));
+		display: grid;
+		align-items: center;
+		min-height: 100%;
 		overflow: clip;
 	}
 
@@ -111,7 +113,7 @@
 		align-items: center;
 		gap: clamp(1rem, 5vw, 4rem);
 		min-height: inherit;
-		padding-block: clamp(1rem, 4dvh, 3rem) 1rem;
+		padding-block: clamp(3rem, 8dvh, 7rem) clamp(2rem, 5dvh, 4rem);
 	}
 
 	.hero-word {
@@ -227,7 +229,7 @@
 			grid-template-columns: 1fr;
 			grid-template-rows: auto minmax(0, 1fr);
 			gap: 0;
-			padding-block: clamp(1rem, 4dvh, 2.5rem) 0;
+			padding-block: clamp(2.5rem, 6dvh, 4rem) 0;
 		}
 
 		.artist-hero__copy :global(h1) {

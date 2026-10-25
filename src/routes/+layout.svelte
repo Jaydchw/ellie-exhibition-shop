@@ -9,6 +9,8 @@
 	import { siteIdentity } from '$lib/content/identity';
 	import SiteFooter from '$lib/components/site-footer.svelte';
 	import SiteHeader from '$lib/components/site-header.svelte';
+	import ArtistNavigation from '$lib/components/artist-navigation.svelte';
+	import ArtistFooter from '$lib/components/artist-footer.svelte';
 	import CartDrawer from '$lib/components/shop/cart-drawer.svelte';
 	import PrivacySettings from '$lib/components/privacy-settings.svelte';
 	import Toasts from '$lib/components/ui/toasts.svelte';
@@ -22,7 +24,7 @@
 	let shopInitialized = false;
 	let identityMarkup = $derived(
 		'<script type="application/ld+json">' +
-			safeJsonLd(siteIdentity(data.siteUrl || page.url.origin, portrait, data.hostedShopUrl)) +
+			safeJsonLd(siteIdentity(data.siteUrl || page.url.origin, portrait, data.onlineStoreUrl)) +
 			'</' +
 			'script>'
 	);
@@ -38,25 +40,41 @@
 	<link rel="icon" href={favicon} />
 	<meta name="theme-color" content="#f7f3ec" />
 	<meta property="og:site_name" content="Ellie Seal" />
-	{#if page.url.pathname === '/' || page.url.pathname === '/about'}
+	{#if page.url.pathname === '/'}
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- JSON-LD escapes script delimiters. -->
 		{@html identityMarkup}
 	{/if}
 </svelte:head>
 <a class="skip-link" href="#main-content">Skip to content</a>
-<div class="site-shell" class:home-shell={page.url.pathname === '/'}>
-	<SiteHeader />
+<div
+	class="site-shell"
+	class:artist-shell={artistPage}
+	class:home-shell={page.url.pathname === '/'}
+>
+	{#if !artistPage}
+		<SiteHeader />
+	{:else if page.url.pathname !== '/'}
+		<ArtistNavigation shopUrl={data.onlineStoreUrl} />
+	{/if}
 	{@render children()}
-	<SiteFooter />
+	{#if artistPage}
+		<ArtistFooter shopUrl={data.onlineStoreUrl} />
+	{:else}
+		<SiteFooter />
+	{/if}
 </div>
 {#if !artistPage}<CartDrawer />{/if}
 <Toasts />
-{#if !data.hostedShopUrl}<PrivacySettings config={data.config} />{/if}
+{#if !artistPage}<PrivacySettings config={data.config} />{/if}
 
 <style>
 	.home-shell {
 		display: grid;
-		grid-template-rows: auto minmax(0, 1fr) auto;
+		grid-template-rows: minmax(0, 1fr) auto;
 		min-height: 100dvh;
+	}
+
+	.artist-shell {
+		--site-header-height: 0rem;
 	}
 </style>

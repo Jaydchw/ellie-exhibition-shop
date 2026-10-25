@@ -1,3 +1,5 @@
+import { shopContactUrl } from '../content/site';
+
 type HostedShopOptions = {
 	siteUrl: string;
 	storeDomain?: string;
@@ -35,6 +37,11 @@ function shopOrigin(options: HostedShopOptions): URL | null {
 	}
 }
 
+/** Native storefront links are also available on local artist-page previews. */
+export function onlineStoreOrigin(options: HostedShopOptions): string | null {
+	return shopOrigin(options)?.href ?? null;
+}
+
 /**
  * The public artist site hands shopping over to Shopify. The custom commerce
  * routes remain untouched and can still be opened on localhost/branch previews.
@@ -52,6 +59,7 @@ export function hostedShopDestination(
 		return null;
 	}
 	const path = requestUrl.pathname.replace(/\/+$/, '') || '/';
+	if (path === '/contact') return shopContactUrl;
 	let destinationPath: string;
 	let product = false;
 	if (path === '/shop') {
@@ -66,6 +74,10 @@ export function hostedShopDestination(
 		destinationPath = '/';
 	} else if (path === '/policies') {
 		destinationPath = '/policies/privacy-policy';
+	} else if (path === '/help') {
+		destinationPath = '/pages/contact';
+	} else if (path === '/pages/data-sharing-opt-out') {
+		destinationPath = '/pages/data-sharing-opt-out';
 	} else {
 		const match = /^\/(shop|collections|policies)\/([^/]+)$/.exec(path);
 		if (!match) return null;

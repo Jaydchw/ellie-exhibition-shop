@@ -7,3 +7,6 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Shopify has its own Liquid, JavaScript, and generated JSON conventions.
+/shopify-native/store-theme/

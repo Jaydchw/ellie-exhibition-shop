@@ -55,6 +55,8 @@ export const socialLinks = {
 	}
 };
 
+export const shopContactUrl = 'https://shop.ellieseal.co.uk/pages/contact';
+
 export const artPageCopy = {
 	eyebrow: 'Fine art',
 	title: 'Abstract Movement Originals',

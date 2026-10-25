@@ -1,7 +1,7 @@
 import { getShopConfig } from '$lib/server/shop-config';
 import { getStorefrontData } from '$lib/commerce/shopify';
 import { getSeoConfig } from '$lib/server/seo-config';
-import { getHostedShopUrl } from '$lib/server/hosted-shop-config';
+import { getHostedShopUrl, getOnlineStoreUrl } from '$lib/server/hosted-shop-config';
 import { defaultMenu } from '$lib/content/storefront';
 import type { LayoutServerLoad } from './$types';
 export const load: LayoutServerLoad = async ({ fetch, url }) => {
@@ -16,6 +16,7 @@ export const load: LayoutServerLoad = async ({ fetch, url }) => {
 	return {
 		config,
 		hostedShopUrl,
+		onlineStoreUrl: getOnlineStoreUrl(url),
 		...getSeoConfig(url),
 		...(await getStorefrontData(config, fetch, needsCatalogue)),
 		...(hostedShopUrl

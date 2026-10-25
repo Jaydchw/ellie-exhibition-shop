@@ -51,7 +51,7 @@ export function defaultMenu(handle: string): MenuLink[] {
 		handle === 'footer'
 			? [
 					['Shop', '/shop'],
-					['About Ellie', '/about'],
+					['Murals', '/murals'],
 					['Help & contact', '/help'],
 					['Shop policies', '/policies']
 				]
@@ -60,8 +60,7 @@ export function defaultMenu(handle: string): MenuLink[] {
 					['Shop', '/shop'],
 					['Prints', '/collections/prints'],
 					['Originals', '/collections/originals'],
-					['Murals', '/murals'],
-					['About', '/about']
+					['Murals', '/murals']
 				];
 	return links.map(([title, url], index) => ({
 		id: `default-${handle}-${index}`,

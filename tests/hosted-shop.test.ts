@@ -1,11 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { hostedShopDestination } from '../src/lib/server/hosted-shop';
+import { hostedShopDestination, onlineStoreOrigin } from '../src/lib/server/hosted-shop';
 
 const options = { siteUrl: 'https://ellieseal.co.uk', storeDomain: 'pr8fqg-6y.myshopify.com' };
 const destination = (path: string, overrides = {}, method = 'GET') =>
 	hostedShopDestination(new URL(path, options.siteUrl), { ...options, ...overrides }, method);
 
 describe('Shopify-hosted shopping handoff', () => {
+	it('provides native shop links on previews without redirecting the preserved custom storefront', () => {
+		expect(onlineStoreOrigin(options)).toBe('https://pr8fqg-6y.myshopify.com/');
+		expect(onlineStoreOrigin({ ...options, shopUrl: 'https://shop.ellieseal.co.uk' })).toBe(
+			'https://shop.ellieseal.co.uk/'
+		);
+		for (const origin of [
+			'http://localhost:5173',
+			'https://preview.ellie-exhibition-shop.pages.dev'
+		]) {
+			expect(hostedShopDestination(new URL('/shop', origin), options)).toBeNull();
+		}
+		expect(onlineStoreOrigin({ ...options, shopUrl: options.siteUrl })).toBeNull();
+		expect(onlineStoreOrigin({ ...options, shopUrl: 'javascript:alert(1)' })).toBeNull();
+	});
 	it('opens the native Shopify shop without needing a Storefront API credential', () => {
 		expect(destination('/shop')).toBe('https://pr8fqg-6y.myshopify.com/');
 		expect(destination('/shop/')).toBe('https://pr8fqg-6y.myshopify.com/');
@@ -13,9 +27,7 @@ describe('Shopify-hosted shopping handoff', () => {
 		expect(destination('/shop', { storeDomain: undefined })).toBe(
 			'https://pr8fqg-6y.myshopify.com/'
 		);
-		expect(destination('/shop', { storeDomain: '  ' })).toBe(
-			'https://pr8fqg-6y.myshopify.com/'
-		);
+		expect(destination('/shop', { storeDomain: '  ' })).toBe('https://pr8fqg-6y.myshopify.com/');
 	});
 	it('hands account entry points and the cart to native Shopify without forwarding return URLs', () => {
 		for (const method of ['GET', 'HEAD']) {
@@ -58,6 +70,25 @@ describe('Shopify-hosted shopping handoff', () => {
 		);
 		for (const path of ['/policies/a%2Fb', '/policies/../contact', '/policies', '/saved']) {
 			expect(destination(path, {}, 'POST')).toBeNull();
+		}
+	});
+	it('hands legacy support and data-sharing links to the native Shopify pages', () => {
+		for (const method of ['GET', 'HEAD']) {
+			for (const path of ['/help', '/help/']) {
+				expect(destination(path, {}, method)).toBe('https://pr8fqg-6y.myshopify.com/pages/contact');
+			}
+			for (const path of ['/contact', '/contact/']) {
+				expect(destination(`${path}?return_to=https://other.example`, {}, method)).toBe(
+					'https://shop.ellieseal.co.uk/pages/contact'
+				);
+			}
+			expect(
+				destination('/pages/data-sharing-opt-out?return_to=https://other.example', {}, method)
+			).toBe('https://pr8fqg-6y.myshopify.com/pages/data-sharing-opt-out');
+		}
+		for (const path of ['/help', '/contact', '/pages/data-sharing-opt-out']) {
+			expect(destination(path, {}, 'POST')).toBeNull();
+			expect(hostedShopDestination(new URL(path, 'http://localhost:5173'), options)).toBeNull();
 		}
 	});
 	it('keeps existing product and collection links on corresponding Shopify pages', () => {
@@ -111,6 +142,9 @@ describe('Shopify-hosted shopping handoff', () => {
 				'/account/login',
 				'/cart',
 				'/saved',
+				'/help',
+				'/contact',
+				'/pages/data-sharing-opt-out',
 				'/policies/privacy-policy'
 			]) {
 				expect(hostedShopDestination(new URL(path, origin), options)).toBeNull();
@@ -122,8 +156,6 @@ describe('Shopify-hosted shopping handoff', () => {
 			'/',
 			'/about',
 			'/murals',
-			'/contact',
-			'/help',
 			'/account/callback',
 			'/shop/a-painting/unexpected'
 		]) {

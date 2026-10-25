@@ -409,7 +409,17 @@ async function inspectArtistHandoff() {
 	if (!live) return;
 	const context = await makeContext({ width: 1440, height: 1100 });
 	try {
-		for (const route of ['/', '/about', '/murals']) {
+		const aboutResponse = await fetch(`${artistOrigin}/about`, {
+			redirect: 'manual',
+			signal: AbortSignal.timeout(10000)
+		});
+		check(
+			'artist:about-redirects-home',
+			aboutResponse.status === 308 &&
+				new URL(aboutResponse.headers.get('location') || '/about', artistOrigin).href ===
+					`${artistOrigin}/`
+		);
+		for (const route of ['/', '/murals', '/murals/hull']) {
 			const page = await context.newPage();
 			try {
 				const response = await page.goto(artistOrigin + route, { waitUntil: 'domcontentloaded' });
@@ -422,6 +432,46 @@ async function inspectArtistHandoff() {
 					(await page
 						.locator('.bag-toggle, .saved-link, .account-shortcut, #shopify-privacy-sdk')
 						.count()) === 0
+				);
+				check(
+					`artist:${route}:no-traditional-header`,
+					(await page.locator('.site-header').count()) === 0
+				);
+				if (route === '/') {
+					const destinations = await page
+						.locator('main .destinations a')
+						.evaluateAll((links) =>
+							links.map((link) => ({ text: link.textContent.trim(), href: link.href }))
+						);
+					check(
+						'artist:home:two-destinations',
+						destinations.length === 2 &&
+							destinations.some((link) => link.href === `${artistOrigin}/murals`) &&
+							destinations.some(
+								(link) => new URL(link.href).origin !== artistOrigin && /shop/i.test(link.text)
+							)
+					);
+				}
+				const privacyLinks = await page
+					.locator('footer a[href]')
+					.evaluateAll((links) =>
+						links
+							.map((link) => ({ text: link.textContent.trim(), href: link.href }))
+							.filter((link) => /privacy/i.test(link.text))
+					);
+				check(
+					`artist:${route}:native-privacy-links`,
+					privacyLinks.length >= 2 &&
+						privacyLinks.every((link) => {
+							const url = new URL(link.href);
+							return url.protocol === 'https:' && url.origin !== artistOrigin;
+						})
+				);
+				check(
+					`artist:${route}:native-contact-link`,
+					(await page
+						.locator('footer a[href="https://shop.ellieseal.co.uk/pages/contact"]')
+						.count()) === 1
 				);
 				await settlePage(page);
 				await screenshot(page, `artist-${route.replaceAll('/', '-') || 'home'}`);
@@ -437,7 +487,7 @@ async function inspectArtistHandoff() {
 		const index = await indexResponse.text();
 		check(
 			'artist-only-sitemap-index',
-			indexResponse.ok() &&
+			indexResponse.ok &&
 				index.includes('/sitemap-pages.xml') &&
 				!index.includes('/sitemap-shop.xml')
 		);
@@ -447,7 +497,7 @@ async function inspectArtistHandoff() {
 		const legacy = await legacyResponse.text();
 		check(
 			'legacy-commerce-sitemap-empty',
-			legacyResponse.ok() && legacy.includes('<urlset') && !legacy.includes('<url>')
+			legacyResponse.ok && legacy.includes('<urlset') && !legacy.includes('<url>')
 		);
 	} finally {
 		await context.close();

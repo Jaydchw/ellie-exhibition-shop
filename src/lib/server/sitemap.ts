@@ -2,7 +2,7 @@ import { getCollections, getPages, getProducts } from '../commerce/shopify';
 import { getPolicies, type StorePolicy } from '../commerce/policies';
 import type { Collection, MerchantPageSummary, Product, ShopConfig } from '../commerce/types';
 
-export const staticPagePaths = ['/', '/murals', '/murals/hull', '/about', '/help', '/contact'];
+export const staticPagePaths = ['/', '/murals', '/murals/hull'];
 export const sitemapPaths = ['/sitemap-pages.xml', '/sitemap-shop.xml'];
 
 type SitemapEntry = { path: string; updatedAt?: string; images?: string[] };

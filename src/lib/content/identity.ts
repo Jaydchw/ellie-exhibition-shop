@@ -22,7 +22,7 @@ export function siteIdentity(siteUrl: string, portrait: string, hostedShopUrl?: 
 				'@type': 'Person',
 				'@id': artist,
 				name: 'Ellie Seal',
-				url: canonicalUrl(siteUrl, '/about'),
+				url: home,
 				jobTitle: 'Artist and mural painter',
 				image: absoluteImageUrl(siteUrl, portrait),
 				sameAs: [socialLinks.instagram.href, socialLinks.facebook.href]
